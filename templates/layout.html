@@ -1,0 +1,111 @@
+<html><head>
+<title>JTcleaning</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="{{ url_for('static', filename='css/bootstrap2.min.css') }}" rel="stylesheet">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <h1><a class="navbar-brand" href="{{ url_for('index') }}" style="margin: 5px 0;">JT</a><span>cleaning</span></h1>
+      </div>
+      <div class="row text-center" style="padding: 0;">
+        <div class="col">
+          <h5><a href="{{ url_for('index') }}" class="navbar-right">Home</a></h5>
+        </div>
+        <div class="col">
+          <h5><a href="javascript:void(0)" onclick="scroll_to_div('servicos_div')" class="navbar-right">Serviços</a></h5>
+        </div>
+        <div class="col">
+          <h5><a href="javascript:void(0)" onclick="scroll_to_div('precos_div')" class="navbar-right">Preços</a></h5>
+        </div>
+        <div class="col">
+          <h5><a href="javascript:void(0)" onclick="scroll_to_div('contactos_div')" class="navbar-right">Contactos</a></h5>
+        </div>
+        <div class="col">
+          {% if current_user.is_authenticated %}
+            <h5><a href="{{ url_for('logout') }}" class="navbar-right">Sair</a></h5>
+          {% else %}
+            <h5><a href="{{ url_for('registo') }}" class="navbar-right">Registe-se</a></h5>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  {% block body %}
+  {% endblock %}
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h3>Sobre Nos</h3>
+            <p>Trabalhamos em conjunto com todo o nosso pessoal e com a comunidade em geral para entregar o melhor serviço possivel.<br><br>
+            Se tiver alguma questao, por favor entre em contact com o nosso escritorio. Temos uma fantastica equipa dispobivel e pronta para responder as suas questoes e ajuda-lo da melhor forma possivel.</p>
+        </div>
+        <div class="col-md-4">
+          <h3>Promocoes</h3>
+          <p>Subscreva-se a nossa lista de comunicacoes e receba promocoes, descontos e muito mais.</p>
+          <br>
+          <form action="#" method="post" class="form-inline" role="form">
+            <div class="form-group">
+              <label class="sr-only" for="exampleInputEmail2">O seu email:</label>
+              <input type="email" class="form-control form-control" id="exampleInputEmail2" placeholder="O seu email:">
+            </div>
+            <button type="submit" class="btn btn-primary btn-md">Subscreva-se</button>
+          </form>
+        </div>
+        <div id="contactos_div" class="col-md-4">
+          <h3>Social</h3>
+          <p>Numero 2, Av da Liberdade<br>
+            1750-234 Lisboa<br>
+            Portugal<br>
+            <br>
+            Contacto: 21 000 00 00<br>
+            Email: ajuda@jtcleaning.com<br>
+            <br>
+          </p>
+          <div class="social__icons"> <a href="#" class="socialicon socialicon-twitter"></a> <a href="#" class="socialicon socialicon-facebook"></a> <a href="#" class="socialicon socialicon-google"></a> <a href="#" class="socialicon socialicon-mail"></a> </div>
+        </div>
+      </div>
+      <hr>
+      <p class="text-center">© Copyright JTcleaning Ltd. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+  </script>
+  <script
+    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous">
+  </script>
+  <script type="text/javascript">
+
+    function scroll_to_div(a){
+      if (window.location.pathname == '/'){
+        var f = document.getElementById(a);
+        f.scrollIntoView();
+      }else{
+        window.location.replace('/#'+a);
+      }
+    }
+
+  </script>
+  </body>
+</html>

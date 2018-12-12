@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+  {% block body %}
+  <div class=" no-margin">
+    <img class="d-block w-100" data-src="{{ url_for('static', filename='images/slider/slider1.jpg') }}" alt="First slide" src="{{ url_for('static', filename='images/slider/slider1.jpg') }}">
+  </div>
+
+  <section class="main__middle__container">
+    <div class="row no-margin grey-info-block text-center" style="padding: 40px 0;">
+      <div class="container">
+        <h1 id="servicos_div" class="page_title">Serviços</h1>
+        <div class="row" style="padding: 10px 0;">
+          <div class="col-md-6">
+            <h3><i class="far fa-building"></i> Escritórios</h3>
+            <img src="{{ url_for('static', filename='images/content__images/pic1.jpg') }}" alt="pic" class="img-rounded">
+            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede.</p>
+            <p><a href="#" class="btn btn-default btn-md">Saber Mais</a></p>
+          </div>
+          <div class="col-md-6">
+            <h3><i class="fas fa-home"></i> Domésticos e Condomínios </h3>
+            <img src="{{ url_for('static', filename='images/content__images/pic2.jpg') }}" alt="pic" class="img-rounded">
+            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede.</p>
+            <p><a href="#" class="btn btn-default btn-md">Saber Mais</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row text-center no-margin" style="padding: 75px 0;">
+      <div class="container">
+        <h1 id="precos_div" class="page_title">Preços Acessíveis</h1>
+        <dir class="row text-center" style="padding: 10px;">
+          <div class="col-md-6">
+            <ul class="list-group">
+              <li class="list-group-item bg-info"><h3><i class="fas fa-home"></i> 15€/h</h3></li>
+              <li class="list-group-item">Limpeza de Cozinhas</li>
+              <li class="list-group-item">Limpeza de Salas</li>
+              <li class="list-group-item">Limpeza de Casas de Banho</li>
+              <li class="list-group-item">Limpeza de Quartos</li>
+              <li class="list-group-item">Limpeza de Halls e Corredores</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul class="list-group">
+              <li class="list-group-item bg-success"><h3><i class="far fa-building"></i> 25€/h</h3></li>
+              <li class="list-group-item">Serviços a combinar</li>
+            </ul>
+          </div>
+        </dir>
+      </div>
+    </div>
+
+    <div class="row no-margin grey-info-block text-center" style="padding: 70px 0;">
+      <div class="container">
+        <h1 class="page_title">Controlo Absoluto</h1>
+        <br>
+        <br>
+        <div class="row text-center" style="padding: 10px 0;">
+          <div class="col-md-3">
+            <img width="125" src="{{ url_for('static', filename='images/login.svg') }}" alt="Registe-se" class="img-responsive img-rounded">
+            <p>Registe-se ou entre na sua conta.</p>
+          </div>
+          <img width="50" src="{{ url_for('static', filename='images/right-arrow.svg') }}" alt="Arrow" class="img-responsive img-rounded">
+          <div class="col-md-2">
+            <img width="125" src="{{ url_for('static', filename='images/form.svg') }}" alt="Comente" class="img-responsive img-rounded">
+            <p>Insira os detalhes e confirme a limpeza.</p>
+          </div>
+          <img width="50" src="{{ url_for('static', filename='images/right-arrow.svg') }}" alt="Arrow" class="img-responsive img-rounded">
+          <div class="col-md-3">
+            <img width="125" src="{{ url_for('static', filename='images/question.svg') }}" alt="Comunique" class="img-responsive img-rounded">
+            <p>Comunique atraves da sua conta.</p>
+          </div>
+          <img width="50" src="{{ url_for('static', filename='images/right-arrow.svg') }}" alt="Arrow" class="img-responsive img-rounded">
+          <div class="col-md-2">
+            <img width="125" src="{{ url_for('static', filename='images/review.svg') }}" alt="Comente" class="img-responsive img-rounded">
+            <p>Deixe o seu comentario!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row  text-center">
+      <div class="container">
+        <h1 class="page_title">Os Nossos Valores</h1>
+        <div class="row" style="padding: 10px 0; color: white;">
+          <div class="col-md-4">
+            <h3><a href="#">Paixao por serviço</a></h3>
+            <img src="{{ url_for('static', filename='images/content__images/img1.jpg') }}" alt="image" class="img-responsive img-rounded">
+            <p>A nossa equipa multicultural garante que nada escapa ao olho mais bem treinado. A média de experiencia profissional na nossa equipa é de 7 anos.</p>
+          </div>
+          <div class="col-md-4 middle">
+            <h3><a href="#">Qualidade e Valor</a></h3>
+            <img src="{{ url_for('static', filename='images/content__images/img2.jpg') }}" alt="image" class="img-responsive img-rounded">
+            <p>A equipa de profissionais de limpezas garante que o serviço e prestado tendo em conta todos os valores da empresa.</p>
+          </div>
+          <div class="col-md-4">
+            <h3><a href="#">Ajuda rapida</a></h3>
+            <img src="{{ url_for('static', filename='images/content__images/img3.jpg') }}" alt="image" class="img-responsive img-rounded">
+            <p>A nossa equipa de suporte tecnico esta disponivel para quaisquer questoes que tenha.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="row text-center grey-info-block no-margin">
+    <div class="container">
+      <h1 class="page_title">A Nossa Equipa</h1>
+      <img width="500" src="{{ url_for('static', filename='images/team.jpg') }}" alt="Our Team" class="img-responsive img-rounded">
+      <p class="big-paragraph">nt semper mod quis eget mi. Etiam euante risus. Aliquam erat vol</p>
+    </div>
+  </div>
+  {% endblock %}
