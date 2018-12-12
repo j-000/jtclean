@@ -1,37 +1,54 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="container" style="text-align: center; padding: 50px 0;">
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <h3>Ola, {{ current_user.name }}!</h3>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-info" role="alert">
+      {% for message in messages %}
+        {{ message }}
+      {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  <br>
   <div class="row" style="padding: 0;">
     <div class="col-md-4">
-      <h3>Menu</h3>
-      <div class="container">
-        <ul class="list-group">
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <strong>Ola, {{ current_user.name }}.</strong>
-          </li>
-          <a href="/dashboard">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-            Dashboard <i class="fas fa-chart-line"></i>
-            </li>
-          </a>
-          <a href="/book">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-            Nova Limpeza <i class="far fa-calendar-plus"></i>
-            </li>
-          </a>
-          <a href="/messages">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-            Mensagens <i class="far fa-comments"></i>
-            <span class="badge badge-primary badge-pill">1</span>
-            </li>
-          </a>
-        </ul>
-      </div>
+      <a href="{{ url_for('messages') }}" class=" list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Mensagens</h5>
+          <small class="badge badge-info">1</small>
+        </div>
+        <p class="mb-1">1 / 18 mensagens.</p>
+        <small><strong>Clique para abrir</strong></small>
+      </a>
     </div>
-    <div class="col-md-8">
-      <h3>Main Panel</h3>
-
+    <div class="col-md-4">
+      <a href="{{ url_for('book') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start active">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Nova Limpeza</h5>
+          <small>{{ existing_bookings_count }} limpezas agendadas.</small>
+        </div>
+        <p class="mb-1">Agende uma limpeza profissional a precos competitivos.</p>
+        <small><strong>Clique para reservar</strong></small>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a href=" {{ url_for('dashboard') }} " class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Dashboard</h5>
+          <small class="badge badge-warning">Premium</small>
+        </div>
+        <p class="mb-1">Relatorios financeiros e estatisticas gerais. Saiba quanto gastou, quanto IVA pagou e quatas reservas fez num determinado periodo.</p>
+        <small><strong>Clique para abrir</strong></small>
+      </a>
+    </div>
+  </div>
+  <br>
+  <div class="row" style="padding: 30px 0 0 0;">
+    <div class="col-md text-center">
+      <a class="btn btn-outline-secondary" href="{{ url_for('profile_settings') }}">Definicoes</a>
     </div>
   </div>
 </div>

@@ -4,6 +4,10 @@ Custom Styles. Bootstrap Styles are default'
 
 */
 
+.list-group-item-custom{
+    min-height: 200px;
+}
+
 * {
 }
 a, input, button {
@@ -237,6 +241,17 @@ header {
     color: #262626;
 }
 /*Main Navigaion Menu*/
+.list-group-item.active{
+    background-color: rgb(119, 190, 236);
+    border: 1px solid rgb(119, 190, 236);
+    -webkit-box-shadow: 4px 9px 31px -18px rgba(0,0,0,0.75);
+    -moz-box-shadow: 4px 9px 31px -18px rgba(0,0,0,0.75);
+    box-shadow: 4px 9px 31px -18px rgba(0,0,0,0.75);
+}
+
+.list-group-item.active:hover{
+    background-color: rgba(119, 190, 236, 0.6);
+}
 
 .dropdown:hover .dropdown-menu {
     display: block;

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block body %}
+
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <div class="row" style="padding: 0;">
+
+  <form action="{{ url_for('book') }}" method="POST">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.service) }}
+    <input type="submit" class="btn btn-default btn-md" value="Agendar">
+  </form>
+
+
+
+  <ul class="list-group">
+    <li class="bg-info list-group-item">As minhas limpezas</li>
+    {% for booking in existing_bookings %}
+      {% if booking.completed %}
+      <li class="list-group-item">{{ booking.id }} | {{ booking.service }} | £ {{ booking.amount_paid }} | <span class="badge badge-success">Completo</span></li>
+      {% else %}
+      <li class="list-group-item">{{ booking.id }} | {{ booking.service }} | £ {{ booking.amount_paid }} | <span class="badge badge-info">Proximo</span></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+</div>
+</div>
+
+{% endblock %}
