@@ -54,7 +54,6 @@ class RegisterForm(FlaskForm):
 
 
 
-
 # ROUTES
 
 @app.route('/')
