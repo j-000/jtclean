@@ -32,6 +32,7 @@ class User(db.Model, UserMixin):
 def load_user(user_id):
   return User.query.get(int(user_id))
 
+
 @login_manager.unauthorized_handler
 def unauthorized():
   flash('Por favor entre na sua conta para aceder ao seu perfile.')
@@ -41,7 +42,7 @@ def unauthorized():
 # ROUTES
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('public/index.html')
 
 
 @app.route('/registo', methods=['GET','POST'])
@@ -81,38 +82,38 @@ def login():
       flash('Esse email nao se encontra registado.')
     return redirect(url_for('login'))
 
-  return render_template('login.html', form=form)
+  return render_template('public/login.html', form=form)
 
 
 
 @app.route('/admin', methods=['GET','POST'])
 @login_required
 def admin():
-    return render_template('admin.html')
+    return render_template('protected/admin.html')
 
 
 @app.route('/profile', methods=['GET','POST'])
 @login_required
 def profile():
-    return render_template('profile.html')
+    return render_template('protected/profile.html')
 
 
 @app.route('/dashboard', methods=['GET','POST'])
 @login_required
 def dashboard():
-    return render_template('profile.html')
+    return render_template('protected/profile.html')
 
 
 @app.route('/book', methods=['GET','POST'])
 @login_required
 def book():
-    return render_template('profile.html')
+    return render_template('protected/profile.html')
 
 
 @app.route('/messages', methods=['GET','POST'])
 @login_required
 def messages():
-    return render_template('profile.html')
+    return render_template('protected/profile.html')
 
 
 
@@ -132,7 +133,7 @@ def logout():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('errors/404.html'), 404
 
 
 if __name__ == '__main__':
