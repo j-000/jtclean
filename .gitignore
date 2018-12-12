@@ -3,6 +3,5 @@ Include
 Lib
 Scripts
 tcl
-static/fonts
 example.db
-
+Application
