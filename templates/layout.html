@@ -32,13 +32,18 @@
         <div class="col">
           <h5><a href="javascript:void(0)" onclick="scroll_to_div('contactos_div')" class="navbar-right">Contactos</a></h5>
         </div>
+        {% if current_user.is_authenticated %}
         <div class="col">
-          {% if current_user.is_authenticated %}
-            <h5><a href="{{ url_for('logout') }}" class="navbar-right">Sair</a></h5>
-          {% else %}
-            <h5><a href="{{ url_for('registo') }}" class="navbar-right">Registe-se</a></h5>
-          {% endif %}
+            <h5><a href="{{ url_for('profile') }}" class="navbar-right">Perfile</a></h5>
         </div>
+        <div class="col">
+            <h5><a href="{{ url_for('logout') }}" class="navbar-right">Sair</a></h5>
+        </div>
+        {% else %}
+        <div class="col">
+            <h5><a href="{{ url_for('registo') }}" class="navbar-right">Registe-se</a></h5>
+        </div>
+        {% endif %}
       </div>
     </div>
   </nav>

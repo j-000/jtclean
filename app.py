@@ -97,11 +97,37 @@ def profile():
     return render_template('profile.html')
 
 
+@app.route('/dashboard', methods=['GET','POST'])
+@login_required
+def dashboard():
+    return render_template('profile.html')
+
+
+@app.route('/book', methods=['GET','POST'])
+@login_required
+def book():
+    return render_template('profile.html')
+
+
+@app.route('/messages', methods=['GET','POST'])
+@login_required
+def messages():
+    return render_template('profile.html')
+
+
+
+
+
 @app.route('/logout')
 @login_required
 def logout():
   logout_user();
   return redirect(url_for('index'))
+
+
+
+
+
 
 
 @app.errorhandler(404)
