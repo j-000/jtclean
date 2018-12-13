@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+
+  <div class="row" style="padding: 0;">
+    <div class="col-md-7">
+      <h5>Perfil</h5>
+
+      # form to change user deatils
+      # stats for this user
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Detalhes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bookings</strong></td>
+            <td>{{ user.get_total_bookings() }}</td>
+          </tr>
+          <tr>
+            <td><strong>Total Pago</strong></td>
+            <td> {{ user.get_total_paid() }} </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+    <div class="col-md-5">
+        <h5>Bookings</h5>
+        <div class="list-group">
+      {% for booking in user.get_user_bookings() %}
+
+        <a href="{{ url_for('admin_booking', booking_id=booking.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">JT-{{ booking.id }}</h5>
+            {% if booking.completed %}
+            <small class="badge badge-success">Completo</small>
+            {% else %}
+            <small class="badge badge-danger">Incompleto</small>
+            {% endif %}
+            <small class="badge badge-info">£ {{ booking.amount_paid }}</small>
+          </div>
+          <p class="mb-1">{{ booking.service }}</p>
+
+          <small>Empregada: </small>
+          <br>
+          <small>Notas: </small>
+        </a>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

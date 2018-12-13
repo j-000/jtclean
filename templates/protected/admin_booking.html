@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+
+  <div class="row" style="padding: 0;">
+
+
+
+      <div class="col-md">
+
+        <p>Here the Admin can change the booking</p>
+        <p>{{ booking }}</p>
+      </div>
+</div>
+</div>
+{% endblock %}

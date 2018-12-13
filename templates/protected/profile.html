@@ -3,15 +3,17 @@
 {% block body %}
 <div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
   <h3>Ola, {{ current_user.name }}!</h3>
-  {% with messages = get_flashed_messages() %}
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div class="alert alert-info" role="alert">
-      {% for message in messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
         {{ message }}
-      {% endfor %}
       </div>
+      {% endfor %}
     {% endif %}
   {% endwith %}
+  <!-- END FLASH MESSAGES -->
   <br>
   <div class="row" style="padding: 0;">
     <div class="col-md-4">
@@ -49,6 +51,11 @@
   <div class="row" style="padding: 30px 0 0 0;">
     <div class="col-md text-center">
       <a class="btn btn-outline-secondary" href="{{ url_for('profile_settings') }}">Definicoes</a>
+
+      {% if current_user.role == 'Admin' %}
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin') }}">Admin Area</a>
+      {% endif %}
+
     </div>
   </div>
 </div>

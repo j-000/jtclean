@@ -110,3 +110,16 @@
     </div>
   </div>
   {% endblock %}
+
+  {% block extrajs %}
+  <script type="text/javascript">
+    function scroll_to_div(a){
+      if (window.location.pathname == '/'){
+        var f = document.getElementById(a);
+        f.scrollIntoView();
+      }else{
+        window.location.replace('/#'+a);
+      }
+    }
+  </script>
+  {% endblock %}

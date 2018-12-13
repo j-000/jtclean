@@ -28,6 +28,19 @@ class User(db.Model, UserMixin):
   role = db.Column(db.String(20))
   premium = db.Column(db.Boolean())
 
+  def get_user_bookings(self):
+    return Booking.query.filter_by(user_id=self.id).all()
+
+  def get_total_bookings(self):
+    return len(Booking.query.filter_by(user_id=self.id).all())
+
+  def get_total_paid(self):
+    total = 0
+    for i in self.get_user_bookings():
+      total += i.amount_paid
+    return total
+
+
 
 class Booking(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -35,6 +48,12 @@ class Booking(db.Model):
   service = db.Column(db.String(50))
   amount_paid = db.Column(db.Float())
   completed = db.Column(db.Boolean())
+  # cleaner
+
+
+
+
+# class BookingNotes():
 
 
 
@@ -46,7 +65,7 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized():
-  flash('Por favor entre na sua conta para aceder ao seu perfile.')
+  flash('Por favor entre na sua conta para aceder ao seu perfile.', 'info')
   return redirect(url_for('login'))
 
 
@@ -76,7 +95,7 @@ def registo():
             premium=False)
     db.session.add(new_user)
     db.session.commit()
-    flash('A sua conta foi criada com sucesso!')
+    flash('A sua conta foi criada com sucesso!', 'success')
     return redirect(url_for('login'))
 
   return render_template('public/registo.html', form=form)
@@ -101,9 +120,9 @@ def login():
       if check_password_hash(user.password, form.password.data):
         login_user(user)
         return redirect(url_for('profile'))
-      flash('A palavra passe nao esta correcta.')
+      flash('A palavra passe nao esta correcta.', 'info')
     else:
-      flash('Esse email nao se encontra registado.')
+      flash('Esse email nao se encontra registado.', 'info')
     return redirect(url_for('login'))
 
   return render_template('public/login.html', form=form)
@@ -152,10 +171,88 @@ def profile():
 
 
 # Admin route for Admin users
-@app.route('/admin', methods=['GET','POST'])
+@app.route('/admin', methods=['GET'])
 @login_required
 def admin():
-    return render_template('protected/admin.html')
+  if current_user.role == 'Admin':
+    users_array = User.query.all()
+    bookings_array = Booking.query.all()
+    return render_template('protected/admin.html', users_array=users_array, bookings_array=bookings_array)
+  flash('Area restrista para administradores.', 'danger')
+  return redirect(url_for('profile'))
+
+
+
+
+
+
+
+
+
+
+
+# Admin route for Admins to modify users
+@app.route('/admin/user/<user_id>', methods=['GET', 'POST'])
+@login_required
+def admin_user(user_id):
+  if current_user.role == 'Admin':
+    user = User.query.filter_by(id=user_id).first()
+    if user:
+      return render_template('protected/admin_user.html', user=user)
+    else:
+      flash('Esse user nao existe.', 'danger')
+      return redirect(url_for('admin'))
+  flash('Area restrista para administradores.', 'danger')
+  return redirect(url_for('profile'))
+
+
+
+
+
+
+
+
+
+
+# Admin route for Admins to modify bookings
+@app.route('/admin/booking/<booking_id>', methods=['GET', 'POST'])
+@login_required
+def admin_booking(booking_id):
+  if current_user.role == 'Admin':
+    booking = Booking.query.filter_by(id=booking_id).first()
+    if booking:
+      return render_template('protected/admin_booking.html', booking=booking)
+    else:
+      flash('Esse booking nao e valido.', 'danger')
+      return redirect(url_for('admin'))
+  flash('Area restrista para administradores.', 'danger')
+  return redirect(url_for('profile'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -174,7 +271,7 @@ def book():
                   completed=False)
     db.session.add(new_booking)
     db.session.commit()
-    flash('A sua limpeza foi agendada com sucesso!')
+    flash('A sua limpeza foi agendada com sucesso!', 'success')
     return redirect(url_for('profile'))
 
   existing_bookings = Booking.query.filter_by(user_id=current_user.id).all()
