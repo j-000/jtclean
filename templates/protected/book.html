@@ -1,31 +1,60 @@
 {% extends "layout.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
+{% block extracss %}
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% endblock %}
+
 {% block body %}
 
 <div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
   <div class="row" style="padding: 0;">
-
-  <form action="{{ url_for('book') }}" method="POST">
-    {{ form.hidden_tag() }}
-    {{ wtf.form_field(form.service) }}
-    <input type="submit" class="btn btn-default btn-md" value="Agendar">
-  </form>
-
-
-
-  <ul class="list-group">
-    <li class="bg-info list-group-item">As minhas limpezas</li>
-    {% for booking in existing_bookings %}
-      {% if booking.completed %}
-      <li class="list-group-item">{{ booking.id }} | {{ booking.service }} | £ {{ booking.amount_paid }} | <span class="badge badge-success">Completo</span></li>
-      {% else %}
-      <li class="list-group-item">{{ booking.id }} | {{ booking.service }} | £ {{ booking.amount_paid }} | <span class="badge badge-info">Proximo</span></li>
-      {% endif %}
-    {% endfor %}
-  </ul>
-
+    <div class="col-md-4">
+      <form action="{{ url_for('book') }}" method="POST">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.service) }}
+        {{ wtf.form_field(form.date) }}
+        {{ wtf.form_field(form.time)}}
+        {{ wtf.form_field(form.duration)}}
+        <p id=service_price ><span id='servicePriceSpan' class="badge badge-success"></span></p>
+        {{ wtf.form_field(form.comments) }}
+        <input type="submit" class="btn btn-default btn-md" value="Agendar">
+      </form>
+    </div>
+    <div class="col-md-8">
+      <ul class="list-group">
+        <li class="bg-info list-group-item">As meus servicos</li>
+        {% for booking in existing_bookings %}
+          {% if booking.completed %}
+          <li class="list-group-item">{{ booking.id }} | {{ booking.service }} | £ {{ booking.amount_paid }} | <span class="badge badge-success">Completo</span></li>
+          {% else %}
+          <li class="list-group-item">{{ booking.id }} | {{ booking.service }} | £ {{ booking.amount_paid }} | <span class="badge badge-info">Proximo</span></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
-</div>
+
+{% endblock %}
+{% block extrajs %}
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+    $( function() {
+      $( "#datepicker" ).datepicker();
+    } );
+    // ID is defined in the FormsClass
+    $('#form1').change(function(){
+      id = $("#form1 option:selected").val();
+      $.ajax({
+        method: 'GET',
+        url: '/api/service/' + id,
+        success: function(data) {
+          $('#servicePriceSpan').text('£' + data + ' / h')
+        }
+      });
+    });
+  </script>
 
 {% endblock %}

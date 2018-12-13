@@ -28,7 +28,7 @@
           <h6 class="card-subtitle mb-2 text-left"><strong>Total:</strong> £ {{ booking.amount_paid }}</h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Metodo de pagamento:</strong> Cartao</h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Cartao: </strong> Visa 5968 </h6>
-          <h6 class="card-subtitle mb-2 text-left"><strong>Servico:</strong> {{ booking.service }}</h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Servico:</strong> {{ booking.service_id }}</h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Supervisor/a:</strong> {{ booking.supervisor }} </h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Empregada/o:</strong> {{ booking.cleaner }} </h6>
         </div>
@@ -36,15 +36,20 @@
       <br>
       <h4>Modificar o Booking</h4>
       <br>
+
+      {% if booking.completed %}
+      <p>Can't change it</p>
+      {% else %}
       <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
         {{ form2.hidden_tag() }}
         {{ wtf.form_field(form2.completed) }}
-        {{ wtf.form_field(form2.service, value=booking.service) }}
+        {{ wtf.form_field(form2.service, value=booking.service_id) }}
         {{ wtf.form_field(form2.amount_paid, value=booking.amount_paid) }}
         {{ wtf.form_field(form2.cleaner, value=booking.cleaner) }}
         {{ wtf.form_field(form2.supervisor, value=booking.supervisor) }}
         <input type="submit" class="btn btn-default btn-md" value="Modificar">
       </form>
+      {% endif %}
 
 
 

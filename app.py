@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin ,login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm
 import datetime
 
 app = Flask(__name__)
@@ -62,7 +62,7 @@ class User(db.Model, UserMixin):
 class Booking(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer)
-  service = db.Column(db.String(50))
+  service_id = db.Column(db.Integer)
   amount_paid = db.Column(db.Float())
   completed = db.Column(db.Boolean(), default=False)
   cleaner = db.Column(db.String(10), nullable=True, default=None)
@@ -74,20 +74,8 @@ class Booking(db.Model):
   def get_booking_notes(self):
     return BookingNote.query.filter_by(booking_id=self.id).all()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  def get_booking_service(self):
+    return Service.query.filter_by(id=self.service_id).first()
 
 
 
@@ -101,6 +89,24 @@ class BookingNote(db.Model):
 
   def get_note_user(self):
     return User.query.filter_by(id=self.user_id).first()
+
+
+
+
+
+
+
+class Service(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(20))
+  description = db.Column(db.Text())
+  price = db.Column(db.Float())
+  active = db.Column(db.Boolean(), default=True)
+
+
+
+
+
 
 
 
@@ -232,13 +238,29 @@ def profile():
 
 
 # Admin route for Admin users
-@app.route('/admin', methods=['GET'])
+@app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
   if current_user.role == 'Admin':
+    form = ServiceForm()
+    if form.validate_on_submit():
+      new_service = Service(name=form.name.data,
+                            description=form.description.data,
+                            price=form.price.data)
+      db.session.add(new_service)
+      db.session.commit()
+      flash('Servico adicionado com sucesso', 'success')
+      return redirect(url_for('admin'))
+
     users_array = User.query.all()
     bookings_array = Booking.query.all()
-    return render_template('protected/admin.html', users_array=users_array, bookings_array=bookings_array)
+    services_array = Service.query.all()
+    return render_template('protected/admin.html',
+                            users_array=users_array,
+                            bookings_array=bookings_array,
+                            services_array=services_array,
+                            form=form)
+
   flash('Area restrista para administradores.', 'danger')
   return redirect(url_for('profile'))
 
@@ -353,7 +375,9 @@ def admin_booking(booking_id):
 @app.route('/book', methods=['GET','POST'])
 @login_required
 def book():
+  available_services = Service.query.filter_by(active=True).all()
   form = BookingForm()
+  form.service.choices = [(i.id, i.name) for i in available_services]
   if form.validate_on_submit():
     new_booking = Booking(
                   user_id = current_user.id,
@@ -368,6 +392,18 @@ def book():
   existing_bookings = Booking.query.filter_by(user_id=current_user.id).all()
 
   return render_template('protected/book.html', form=form, existing_bookings=existing_bookings)
+
+
+
+
+@app.route('/api/service/<service_id>', methods=['GET', 'POST'])
+@login_required
+def api_services(service_id):
+  service = Service.query.filter_by(id=service_id).first()
+  return str(service.price)
+
+
+
 
 
 

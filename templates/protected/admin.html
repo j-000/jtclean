@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 {% block body %}
 <div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
   <!-- BEGIN FLASH MESSAGES -->
@@ -17,19 +18,26 @@
     <div class="col-md-4">
       <ul class="list-group">
         <a class="escolha" id="#one" href="javascript:void(0)">
-          <li class="list-group-item">Users</li>
+          <li class="list-group-item">Dashboard</li>
         </a>
         <a class="escolha" id="#two" href="javascript:void(0)">
-          <li class="list-group-item">Bookings</li>
+          <li class="list-group-item">Users</li>
         </a>
         <a class="escolha" id="#three" href="javascript:void(0)">
-          <li class="list-group-item">Other</li>
+          <li class="list-group-item">Bookings</li>
+        </a>
+        <a class="escolha" id="#four" href="javascript:void(0)">
+          <li class="list-group-item">Services</li>
         </a>
       </ul>
     </div>
     <div class="col-md-8">
 
-      <div class="escolha-div" id="one">
+      <div class="escolha-div" id="one" style="display: none;">
+
+      </div>
+
+      <div class="escolha-div" id="two">
         <table class="table">
           <thead class="thead-dark">
             <tr>
@@ -62,7 +70,7 @@
         </table>
       </div>
 
-      <div class="escolha-div" id="two" style="display: none;">
+      <div class="escolha-div" id="three" style="display: none;">
         <table class="table">
           <thead class="thead-dark">
             <tr>
@@ -78,7 +86,7 @@
               <tr>
                 <td><a href="{{ url_for('admin_booking', booking_id=booking.id) }}">{{ booking.id }}</a></td>
                 <td><a href="{{ url_for('admin_user', user_id=booking.user_id) }}">{{ booking.user_id }}</a></td>
-                <td>{{ booking.service }}</td>
+                <td>{{ booking.get_booking_service() }}</td>
                 <td>{{ booking.amount_paid }}</td>
                 <td>
                   {% if booking.completed %}
@@ -93,8 +101,42 @@
         </table>
       </div>
 
-      <div class="escolha-div" id="three" style="display: none;">
-
+      <div class="escolha-div" id="four" style="display: none;">
+        <h4>Novo Servico</h4>
+        <form action="{{ url_for('admin') }}" method="POST">
+          {{ form.hidden_tag() }}
+          {{ wtf.form_field(form.name) }}
+          {{ wtf.form_field(form.description) }}
+          {{ wtf.form_field(form.price, value=0.00) }}
+          <input type="submit" class="btn btn-default btn-md" value="Adicionar">
+        </form>
+        <br>
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th>id</th>
+              <th>name</th>
+              <th>price</th>
+              <th>active</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for service in services_array %}
+              <tr>
+                <td>{{ service.id }}</td>
+                <td>{{ service.name }}</td>
+                <td>{{ service.price }}</td>
+                <td>
+                  {% if service.active %}
+                  <span class="badge badge-success">Activo</span>
+                  {% else %}
+                  <span class="badge badge-danger">Desactivado</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
 
     </div>
