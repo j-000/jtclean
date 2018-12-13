@@ -14,13 +14,33 @@
   <!-- END FLASH MESSAGES -->
 
   <div class="row" style="padding: 0;">
-
-
-
       <div class="col-md">
-
         <p>Here the Admin can change the booking</p>
-        <p>{{ booking }}</p>
+        <p></p>
+
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title text-left">JT-{{ booking.id }}</h4>
+            <h6 class="card-subtitle mb-2 text-muted text-left">{{ booking.get_booking_user().name }} {{ booking.get_booking_user().surname }}</h6>
+            <p class="card-text">
+              {{booking.service}}
+            </p>
+            <span><strong>Paid:</strong> £ {{ booking.amount_paid }} </span>
+
+          </div>
+        </div>
+        <div class="list-group">
+          {% for note in booking.get_booking_notes() %}
+          <div class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1"></h5>
+              <small>3 days ago</small>
+            </div>
+            <p class="mb-1">{{ note }}</p>
+            <small>Donec id elit non mi porta.</small>
+          </div>
+          {% endfor %}
+        </div>
       </div>
 </div>
 </div>

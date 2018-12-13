@@ -22,28 +22,47 @@
       <table class="table">
         <thead>
           <tr>
-            <th>#</th>
+            <th></th>
             <th>Detalhes</th>
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td><strong>Nome Completo</strong></td>
+            <td>{{ user.name }} {{ user.surname }}</td>
+          </tr>
           <tr>
             <td><strong>Bookings</strong></td>
             <td>{{ user.get_total_bookings() }}</td>
           </tr>
           <tr>
             <td><strong>Total Pago</strong></td>
-            <td> {{ user.get_total_paid() }} </td>
+            <td>£ {{ user.get_total_paid() }} </td>
+          </tr>
+          <tr>
+            <td><strong>Total Iva</strong></td>
+            <td>£ {{ user.get_total_vat() }} </td>
+          </tr>
+          <tr>
+            <td><strong>Empregadas</strong></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><strong>Servicos</strong></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><strong>Ultimo Servico</strong></td>
+            <td></td>
           </tr>
         </tbody>
       </table>
 
     </div>
     <div class="col-md-5">
-        <h5>Bookings</h5>
-        <div class="list-group">
+      <h5>Bookings</h5>
+      <div class="list-group">
       {% for booking in user.get_user_bookings() %}
-
         <a href="{{ url_for('admin_booking', booking_id=booking.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">JT-{{ booking.id }}</h5>
@@ -54,7 +73,7 @@
             {% endif %}
             <small class="badge badge-info">£ {{ booking.amount_paid }}</small>
           </div>
-          <p class="mb-1">{{ booking.service }}</p>
+          <p class="mb-1"><strong>Servico:</strong> {{ booking.service }}</p>
 
           <small>Empregada: </small>
           <br>

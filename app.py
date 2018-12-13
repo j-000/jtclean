@@ -40,6 +40,12 @@ class User(db.Model, UserMixin):
       total += i.amount_paid
     return total
 
+  def get_total_vat(self):
+    total = self.get_total_paid()
+    vat = total - ( total / 1.2 )
+    return round(vat, 2)
+
+
 
 
 class Booking(db.Model):
@@ -48,13 +54,16 @@ class Booking(db.Model):
   service = db.Column(db.String(50))
   amount_paid = db.Column(db.Float())
   completed = db.Column(db.Boolean())
-  # cleaner
+  #cleaner = db.Column(db.String(10))
 
+  def get_booking_user(self):
+    return User.query.filter_by(id=self.user_id).first()
 
-
+  def get_booking_notes(self):
+    return ['Some note', 'Other note']
 
 # class BookingNotes():
-
+#
 
 
 # USER LOADER
