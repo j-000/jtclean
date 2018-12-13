@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, BooleanField, TextAreaField, DecimalField, SelectField
 from wtforms.validators import InputRequired, Email, Length
 
 
@@ -17,6 +17,28 @@ class RegisterForm(FlaskForm):
     company = BooleanField('Negocio / Empresa')
 
 
+
+
+
+
+
+
 class BookingForm(FlaskForm):
     service = StringField('Servico', validators=[InputRequired()])
 
+
+
+
+class BookingNotesForm(FlaskForm):
+    text = TextAreaField('Texto', validators=[InputRequired(), Length(min=5)])
+
+
+
+
+
+class BookingUpdateForm(FlaskForm):
+    service = StringField('Servico')
+    amount_paid = DecimalField('Nova Quantia')
+    completed = BooleanField('Completo')
+    cleaner = StringField('Empregado/a')
+    supervisor = StringField('Supervisor/a')

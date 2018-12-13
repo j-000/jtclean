@@ -3,7 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin ,login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm
+import datetime
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -48,22 +49,73 @@ class User(db.Model, UserMixin):
 
 
 
+
+
+
+
+
+
+
+
+
+
 class Booking(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer)
   service = db.Column(db.String(50))
   amount_paid = db.Column(db.Float())
-  completed = db.Column(db.Boolean())
-  #cleaner = db.Column(db.String(10))
+  completed = db.Column(db.Boolean(), default=False)
+  cleaner = db.Column(db.String(10), nullable=True, default=None)
+  supervisor = db.Column(db.String(10), nullable=True, default=None)
 
   def get_booking_user(self):
     return User.query.filter_by(id=self.user_id).first()
 
   def get_booking_notes(self):
-    return ['Some note', 'Other note']
+    return BookingNote.query.filter_by(booking_id=self.id).all()
 
-# class BookingNotes():
-#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class BookingNote(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  booking_id = db.Column(db.Integer)
+  user_id = db.Column(db.Integer)
+  text = db.Column(db.Text())
+  created_on = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+
+  def get_note_user(self):
+    return User.query.filter_by(id=self.user_id).first()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # USER LOADER
@@ -228,12 +280,42 @@ def admin_user(user_id):
 @login_required
 def admin_booking(booking_id):
   if current_user.role == 'Admin':
+    form = BookingNotesForm()
+    form2 = BookingUpdateForm()
+
+    if form.validate_on_submit():
+      new_note = BookingNote(
+                    user_id=current_user.id,
+                    booking_id=booking_id,
+                    text=form.text.data)
+      db.session.add(new_note)
+      db.session.commit()
+      flash('Nota adicionada com sucesso.', 'info')
+      return redirect(url_for('admin_booking', booking_id=booking_id))
+
+    if form2.validate_on_submit():
+
+      if form2.service.data == None or form2.amount_paid.data == None:
+        flash('Erro - Corrija o servico ou o valor do servico.', 'danger')
+        return redirect(url_for('admin_booking', booking_id=booking_id))
+      else:
+        updated_booking = Booking.query.filter_by(id=booking_id).first()
+        updated_booking.service = form2.service.data
+        updated_booking.amount_paid = form2.amount_paid.data
+        updated_booking.completed = form2.completed.data
+        updated_booking.cleaner = form2.cleaner.data
+        updated_booking.supervisor = form2.supervisor.data
+        db.session.commit()
+        flash('Booking modificado com sucesso.', 'success')
+        return redirect(url_for('admin_booking',booking_id=booking_id))
+
     booking = Booking.query.filter_by(id=booking_id).first()
     if booking:
-      return render_template('protected/admin_booking.html', booking=booking)
+      return render_template('protected/admin_booking.html', booking=booking, form=form, form2=form2)
     else:
       flash('Esse booking nao e valido.', 'danger')
       return redirect(url_for('admin'))
+
   flash('Area restrista para administradores.', 'danger')
   return redirect(url_for('profile'))
 

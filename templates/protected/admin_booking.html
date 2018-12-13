@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 {% block body %}
 <div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
   <!-- BEGIN FLASH MESSAGES -->
@@ -14,34 +15,63 @@
   <!-- END FLASH MESSAGES -->
 
   <div class="row" style="padding: 0;">
-      <div class="col-md">
-        <p>Here the Admin can change the booking</p>
-        <p></p>
-
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title text-left">JT-{{ booking.id }}</h4>
-            <h6 class="card-subtitle mb-2 text-muted text-left">{{ booking.get_booking_user().name }} {{ booking.get_booking_user().surname }}</h6>
-            <p class="card-text">
-              {{booking.service}}
-            </p>
-            <span><strong>Paid:</strong> £ {{ booking.amount_paid }} </span>
-
-          </div>
+    <div class="col-md">
+      <h4>Booking</h4>
+      <div class="card">
+        <div class="card-body">
+          {% if booking.completed %}
+          <h4 class="card-title text-left">JT-{{ booking.id }} <span class="badge badge-success">Completo</span></h4>
+          {% else %}
+          <h4 class="card-title text-left">JT-{{ booking.id }} <span class="badge badge-danger">Incompleto</span></h4>
+          {% endif %}
+          <h6 class="card-subtitle mb-2 text-left"><strong>Cliente:</strong> {{ booking.get_booking_user().name }} {{ booking.get_booking_user().surname }}</h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Total:</strong> £ {{ booking.amount_paid }}</h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Metodo de pagamento:</strong> Cartao</h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Cartao: </strong> Visa 5968 </h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Servico:</strong> {{ booking.service }}</h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Supervisor/a:</strong> {{ booking.supervisor }} </h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Empregada/o:</strong> {{ booking.cleaner }} </h6>
         </div>
+      </div>
+      <br>
+      <h4>Modificar o Booking</h4>
+      <br>
+      <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
+        {{ form2.hidden_tag() }}
+        {{ wtf.form_field(form2.completed) }}
+        {{ wtf.form_field(form2.service, value=booking.service) }}
+        {{ wtf.form_field(form2.amount_paid, value=booking.amount_paid) }}
+        {{ wtf.form_field(form2.cleaner, value=booking.cleaner) }}
+        {{ wtf.form_field(form2.supervisor, value=booking.supervisor) }}
+        <input type="submit" class="btn btn-default btn-md" value="Modificar">
+      </form>
+
+
+
+
+    </div>
+    <div class="col-md">
+      <h4>Notas</h4>
         <div class="list-group">
           {% for note in booking.get_booking_notes() %}
           <div class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1"></h5>
-              <small>3 days ago</small>
+              <small>{{ note.get_note_user().name }} | {{ note.created_on }}</small>
             </div>
-            <p class="mb-1">{{ note }}</p>
-            <small>Donec id elit non mi porta.</small>
+            <p class="mb-1">{{ note.text }}</p>
+            <small></small>
           </div>
           {% endfor %}
         </div>
+        <br>
+        <br>
+        <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
+          {{ form.hidden_tag() }}
+          {{ wtf.form_field(form.text) }}
+          <input type="submit" class="btn btn-default btn-md" value="Adicionar">
+        </form>
       </div>
-</div>
+    </div>
 </div>
 {% endblock %}
