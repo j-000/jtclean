@@ -30,7 +30,7 @@
       <a href="{{ url_for('book') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start active">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Nova Limpeza</h5>
-          <small>{{ existing_bookings_count }} limpezas agendadas.</small>
+          <small>{{ current_user.get_total_bookings() }} limpezas agendadas.</small>
         </div>
         <p class="mb-1">Agende uma limpeza profissional a precos competitivos.</p>
         <small><strong>Clique para reservar</strong></small>

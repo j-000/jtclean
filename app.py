@@ -51,7 +51,16 @@ class User(db.Model, UserMixin):
 
 
 
+class Cleaner(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, unique=True)
+  available = db.Column(db.Boolean(), default=True)
+  rate = db.Column(db.Float(), default=5)
+  position = db.Column(db.String(20), default='Cleaner')
 
+
+  def get_cleaner_details(self):
+    return User.query.filter_by(id=user_id).first()
 
 
 
@@ -62,8 +71,14 @@ class User(db.Model, UserMixin):
 class Booking(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer)
+  property_type = db.Column(db.String(20))
   service_id = db.Column(db.Integer)
+  date_from = db.Column(db.String(25))
+  date_to = db.Column(db.String(25))
+  start_time = db.Column(db.String(10))
+  duration = db.Column(db.Integer)
   amount_paid = db.Column(db.Float())
+  comment = db.Column(db.Text()) # customer's coment
   completed = db.Column(db.Boolean(), default=False)
   cleaner = db.Column(db.String(10), nullable=True, default=None)
   supervisor = db.Column(db.String(10), nullable=True, default=None)
@@ -71,11 +86,21 @@ class Booking(db.Model):
   def get_booking_user(self):
     return User.query.filter_by(id=self.user_id).first()
 
-  def get_booking_notes(self):
+  def get_booking_notes(self): # admin staff's notes
     return BookingNote.query.filter_by(booking_id=self.id).all()
 
   def get_booking_service(self):
     return Service.query.filter_by(id=self.service_id).first()
+
+  def get_assignable_staff(self):
+    return Cleaner.query.filter_by(available=True).all()
+
+  def get_service(self):
+    return Service.query.filter_by(id=self.service_id).first()
+
+
+
+
 
 
 
@@ -102,6 +127,23 @@ class Service(db.Model):
   description = db.Column(db.Text())
   price = db.Column(db.Float())
   active = db.Column(db.Boolean(), default=True)
+
+
+
+
+class Message(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  from_user_id = db.Column(db.Integer)
+  to_user_id = db.Column(db.Integer)
+  timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+  message = db.Column(db.Text())
+
+  def get_message_sender(self):
+    return User.query.filter_by(id=self.from_user_id).first()
+
+  def get_message_receiver(self):
+    return User.query.filter_by(id=self.to_user_id).first()
+
 
 
 
@@ -141,6 +183,9 @@ def unauthorized():
 @app.route('/')
 def index():
     return render_template('public/index.html')
+
+
+
 
 
 # Registration route
@@ -211,9 +256,7 @@ def login():
 @app.route('/profile', methods=['GET','POST'])
 @login_required
 def profile():
-  existing_bookings_count = len(Booking.query.filter_by(user_id=current_user.id, completed=False).all())
-
-  return render_template('protected/profile.html', existing_bookings_count=existing_bookings_count)
+  return render_template('protected/profile.html')
 
 
 
@@ -376,22 +419,42 @@ def admin_booking(booking_id):
 @login_required
 def book():
   available_services = Service.query.filter_by(active=True).all()
-  form = BookingForm()
-  form.service.choices = [(i.id, i.name) for i in available_services]
-  if form.validate_on_submit():
+  bookingForm = BookingForm()
+  choices = [(0,'Escolha um servico')] + [(i.id, i.name) for i in available_services]
+  bookingForm.service.choices = choices
+
+  if bookingForm.validate_on_submit():
+
+    service_price = Service.query.filter_by(id=bookingForm.service.data).first().price
+
     new_booking = Booking(
                   user_id = current_user.id,
-                  service=form.service.data,
-                  amount_paid=19.99,
-                  completed=False)
+                  property_type = bookingForm.propertyType.data,
+                  service_id=bookingForm.service.data,
+                  date_from=bookingForm.date_from.data,
+                  date_to=bookingForm.date_to.data,
+                  start_time=bookingForm.time.data,
+                  duration=bookingForm.duration.data,
+                  amount_paid=service_price,
+                  comment=bookingForm.comments.data)
+
     db.session.add(new_booking)
     db.session.commit()
     flash('A sua limpeza foi agendada com sucesso!', 'success')
     return redirect(url_for('profile'))
 
-  existing_bookings = Booking.query.filter_by(user_id=current_user.id).all()
+  return render_template('protected/book.html', form=bookingForm)
 
-  return render_template('protected/book.html', form=form, existing_bookings=existing_bookings)
+
+
+
+
+
+
+
+
+
+
 
 
 
