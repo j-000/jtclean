@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <div class="row" style="padding: 0;">
+    <div class="col-md">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Mensagem de <span class="badge badge-info">{{ message.get_message_sender().name }}</span></h4>
+          <h6 class="card-subtitle mb-2 text-muted">{{ moment(message.timestamp).calendar() }}</h6>
+          <p class="card-text">
+            {{ message.message }}
+          </p>
+        </div>
+
+      </div>
+      {% if message.from_user_id == current_user.id %}
+      {% else %}
+      <form action="{{ url_for('messages') }}" method="POST">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.to_user, value=message.from_user_id) }}
+        {{ wtf.form_field(form.message) }}
+        <input type="submit" class="btn btn-default btn-md" value="Enviar">
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+  $('#messageToUserField').hide()
+  $('label[for=messageToUserField]').hide()
+</script>
+{% endblock %}

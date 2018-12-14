@@ -51,3 +51,10 @@ class BookingUpdateForm(FlaskForm):
     supervisor = StringField('Supervisor/a')
 
 
+
+
+class SendMessageForm(FlaskForm):
+    to_user = SelectField('Para:', id='messageToUserField' , choices=[(0, 'Geral')], coerce=int, validators=[InputRequired()])
+    message = TextAreaField('Mensagem:', validators=[InputRequired()])
+
+

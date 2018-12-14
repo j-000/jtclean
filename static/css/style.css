@@ -3,6 +3,9 @@
 Custom Styles. Bootstrap Styles are default'
 
 */
+.custom-bg-warning{
+    background-color: rgba(255,193,7, 0.6)!important;
+}
 
 .loader {
   border: 16px solid #f3f3f3; /* Light grey */

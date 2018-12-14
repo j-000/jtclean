@@ -20,9 +20,11 @@
       <a href="{{ url_for('messages') }}" class=" list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Mensagens</h5>
-          <small class="badge badge-info">1</small>
+          {% if current_user.get_total_unread_messages_to_user() > 0 %}
+            <small class="badge badge-success">Nova Mensagem!</small>
+          {% endif %}
         </div>
-        <p class="mb-1">1 / 18 mensagens.</p>
+        <p class="mb-1">{{ current_user.get_total_unread_messages_to_user() }} / {{ current_user.get_total_messages_to_user() }} mensagens</p>
         <small><strong>Clique para abrir</strong></small>
       </a>
     </div>

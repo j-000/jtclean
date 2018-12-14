@@ -80,13 +80,20 @@
     // ID is defined in the FormsClass
     $('#form1').change(function(){
       id = $("#form1 option:selected").val();
-      $.ajax({
-        method: 'GET',
-        url: '/api/service/' + id,
-        success: function(data) {
-          $('#servicePriceSpan').text('£' + data + ' / h')
-        }
-      });
+      try{
+        $.ajax({
+          method: 'GET',
+          url: '/api/service/' + id,
+          success: function(data) {
+            $('#servicePriceSpan').text('£' + data + ' / h')
+          },
+          error: function(e){
+            console.log(e);
+          }
+        });
+      }catch(err){
+        console.log(err);
+      }
     });
   </script>
 

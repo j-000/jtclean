@@ -1,10 +1,14 @@
 from flask import Flask, url_for, render_template, flash, redirect
+from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin ,login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm
 import datetime
+import json
+from sqlalchemy import desc
+
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -19,6 +23,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 # login_manager.login_message = 'Por favor entre na sua conta.' # overiden by unauthorized_handler
 
+moment = Moment(app)
 
 class User(db.Model, UserMixin):
   id = db.Column(db.Integer, primary_key=True)
@@ -45,6 +50,22 @@ class User(db.Model, UserMixin):
     total = self.get_total_paid()
     vat = total - ( total / 1.2 )
     return round(vat, 2)
+
+  def get_messages_from_user(self):
+    return Message.query.filter_by(from_user_id=self.id).order_by(Message.timestamp.desc()).all()
+
+  def get_messages_to_user(self):
+    return Message.query.filter_by(to_user_id=self.id).order_by(Message.timestamp.desc()).all()
+
+  def get_total_messages_to_user(self):
+    return len(Message.query.filter_by(to_user_id=self.id).all())
+
+  def get_total_unread_messages_to_user(self):
+    return len(Message.query.filter_by(to_user_id=self.id, read=False).all())
+
+
+
+
 
 
 
@@ -131,12 +152,14 @@ class Service(db.Model):
 
 
 
+
 class Message(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   from_user_id = db.Column(db.Integer)
   to_user_id = db.Column(db.Integer)
   timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
   message = db.Column(db.Text())
+  read = db.Column(db.Boolean(), default=False)
 
   def get_message_sender(self):
     return User.query.filter_by(id=self.from_user_id).first()
@@ -462,8 +485,13 @@ def book():
 @app.route('/api/service/<service_id>', methods=['GET', 'POST'])
 @login_required
 def api_services(service_id):
-  service = Service.query.filter_by(id=service_id).first()
-  return str(service.price)
+  try:
+    service = Service.query.filter_by(id=service_id).first()
+    response = str(service.price)
+  except Exception as e:
+    response = str(0)
+
+  return response
 
 
 
@@ -480,11 +508,73 @@ def dashboard():
 
 
 
+
+
+
+
+
+
+
 # Messages route
 @app.route('/profile/messages', methods=['GET','POST'])
 @login_required
 def messages():
-  return render_template('protected/messages.html')
+  messageForm = SendMessageForm()
+  if messageForm.validate_on_submit():
+    new_message = Message(
+                  from_user_id = current_user.id,
+                  to_user_id = messageForm.to_user.data,
+                  message = messageForm.message.data
+      )
+    db.session.add(new_message)
+    db.session.commit()
+    flash('Mensagem enviada com sucesso.', 'success')
+    return redirect(url_for('messages'))
+
+  return render_template('protected/messages.html', form=messageForm)
+
+
+
+
+@app.route('/profile/messages/<message_id>', methods=['GET','POST'])
+@login_required
+def open_message(message_id):
+  message = Message.query.filter_by(id=message_id).first()
+
+  if message.to_user_id == current_user.id or message.from_user_id == current_user.id:
+    messageForm = SendMessageForm()
+    if not message.read:
+      message.read = True
+      db.session.commit()
+
+    return render_template('protected/open_message.html', message=message, form=messageForm)
+  flash('Essa mensagem nao existe.', 'danger')
+  return redirect(url_for('messages'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/profile/settings', methods=['GET','POST'])
