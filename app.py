@@ -4,8 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin ,login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount
 import datetime
+from datetime import date, timedelta
 import json
 from sqlalchemy import desc
 
@@ -27,12 +28,13 @@ moment = Moment(app)
 
 class User(db.Model, UserMixin):
   id = db.Column(db.Integer, primary_key=True)
+  timestamp = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
   name = db.Column(db.String(30))
   surname = db.Column(db.String(30))
   email = db.Column(db.String(50), unique=True)
   password = db.Column(db.String(85))
-  role = db.Column(db.String(20))
-  premium = db.Column(db.Boolean())
+  role = db.Column(db.String(20), default='Cliente')
+  premium = db.Column(db.Boolean(), default=False)
 
   def get_user_bookings(self):
     return Booking.query.filter_by(user_id=self.id).all()
@@ -63,7 +65,8 @@ class User(db.Model, UserMixin):
   def get_total_unread_messages_to_user(self):
     return len(Message.query.filter_by(to_user_id=self.id, read=False).all())
 
-
+  def get_cleaner(self):
+    return Cleaner.query.filter_by(user_id=self.id).first()
 
 
 
@@ -91,6 +94,7 @@ class Cleaner(db.Model):
 
 class Booking(db.Model):
   id = db.Column(db.Integer, primary_key=True)
+  timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
   user_id = db.Column(db.Integer)
   property_type = db.Column(db.String(20))
   service_id = db.Column(db.Integer)
@@ -219,15 +223,13 @@ def registo():
     hashed_password = generate_password_hash(form.password.data, method='sha256')
     if form.company.data:
         role = 'Empresa'
-    else:
-        role = 'Cliente'
+
     new_user = User(
             name=form.name.data,
             surname=form.surname.data,
             email=form.email.data,
             password=hashed_password,
-            role = role,
-            premium=False)
+            role = role)
     db.session.add(new_user)
     db.session.commit()
     flash('A sua conta foi criada com sucesso!', 'success')
@@ -319,12 +321,35 @@ def admin():
       return redirect(url_for('admin'))
 
     users_array = User.query.all()
-    bookings_array = Booking.query.all()
     services_array = Service.query.all()
+
+    #  REFACTOR THIS OUT TO AN API
+    bookings_array = Booking.query.all()
+    bookings_stats = {
+      'total': len(bookings_array),
+      'today':0,
+      'week':0,
+      'month':0,
+    }
+    _today = datetime.datetime.utcnow().date()
+    _fiveDaysAgo = _today - timedelta(7)
+    _thirtyDaysAgo = _today - timedelta(30)
+
+    for booking in bookings_array:
+      booking_date = booking.timestamp.date()
+      if booking_date == _today:
+        bookings_stats['today'] += 1
+      if booking_date >= _fiveDaysAgo and booking_date <= _today:
+        bookings_stats['week'] += 1
+      if booking_date >= _thirtyDaysAgo and booking_date <= _today:
+        bookings_stats['month'] += 1
+    # REFACTOR END
+
     return render_template('protected/admin.html',
                             users_array=users_array,
                             bookings_array=bookings_array,
                             services_array=services_array,
+                            bookings_stats=bookings_stats,
                             form=form)
 
   flash('Area restrista para administradores.', 'danger')
@@ -345,9 +370,17 @@ def admin():
 @login_required
 def admin_user(user_id):
   if current_user.role == 'Admin':
+    form = UpdateUserAccount()
     user = User.query.filter_by(id=user_id).first()
     if user:
-      return render_template('protected/admin_user.html', user=user)
+      if form.validate_on_submit():
+        user.role = form.role.data
+        user.premium = form.accountType.data
+        db.session.commit()
+        flash('Perfile modificado com sucesso.','success')
+        return redirect(url_for('admin_user', user_id=user_id))
+
+      return render_template('protected/admin_user.html', user=user, form=form)
     else:
       flash('Esse user nao existe.', 'danger')
       return redirect(url_for('admin'))
@@ -399,6 +432,9 @@ def admin_booking(booking_id):
 
     booking = Booking.query.filter_by(id=booking_id).first()
     if booking:
+      services_array = Service.query.filter_by(active=True).all()
+      form2.service.choices = [(i.id, i.name) for i in services_array]
+
       return render_template('protected/admin_booking.html', booking=booking, form=form, form2=form2)
     else:
       flash('Esse booking nao e valido.', 'danger')

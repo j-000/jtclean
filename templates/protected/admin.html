@@ -33,11 +33,123 @@
     </div>
     <div class="col-md-8">
 
-      <div class="escolha-div" id="one" style="display: none;">
-
+      <div class="escolha-div" id="one">
+        <div class="row" style="padding: 0;">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Hoje</h4>
+                <table class="table table-borderless table-sm">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="badge badge-info">Bookings:</span></td>
+                      <td>{{ bookings_stats['today'] }}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-info">Clientes:</span></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-danger">Cancelamentos:</span></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Ultimos 7 dias</h4>
+                <table class="table table-borderless table-sm">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="badge badge-info">Bookings:</span></td>
+                      <td>{{ bookings_stats['week'] }}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-info">Clientes:</span></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-danger">Cancelamentos:</span></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Ultimos 30 dias</h4>
+                <table class="table table-borderless table-sm">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="badge badge-info">Bookings:</span></td>
+                      <td>{{ bookings_stats['month'] }}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-info">Clientes:</span></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-danger">Cancelamentos:</span></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="row" style="padding: 0;">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                This is some text within a card block.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                This is some text within a card block.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                This is some text within a card block.
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="escolha-div" id="two">
+      <div class="escolha-div" id="two" style="display: none;">
         <table class="table">
           <thead class="thead-dark">
             <tr>

@@ -24,17 +24,22 @@
             <small class="badge badge-success">Nova Mensagem!</small>
           {% endif %}
         </div>
+        <br>
         <p class="mb-1">{{ current_user.get_total_unread_messages_to_user() }} / {{ current_user.get_total_messages_to_user() }} mensagens</p>
         <small><strong>Clique para abrir</strong></small>
       </a>
     </div>
     <div class="col-md-4">
-      <a href="{{ url_for('book') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start active">
+      <a href="{{ url_for('book') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Nova Limpeza</h5>
-          <small>{{ current_user.get_total_bookings() }} limpezas agendadas.</small>
+          <h5 class="mb-1">Servicos</h5>
+          {% if current_user.get_total_bookings() > 0 %}
+          <span class="badge badge-info">{{ current_user.get_total_bookings() }} servicos agendados</span>
+          {% else %}
+          {% endif %}
         </div>
-        <p class="mb-1">Agende uma limpeza profissional a precos competitivos.</p>
+        <br>
+        <p class="mb-1">Agende uma limpeza profissional a precos competitivos ou consulte os seus servicos ativos.</p>
         <small><strong>Clique para reservar</strong></small>
       </a>
     </div>
@@ -44,6 +49,7 @@
           <h5 class="mb-1">Dashboard</h5>
           <small class="badge badge-warning">Premium</small>
         </div>
+        <br>
         <p class="mb-1">Relatorios financeiros e estatisticas gerais. Saiba quanto gastou, quanto IVA pagou e quatas reservas fez num determinado periodo.</p>
         <small><strong>Clique para abrir</strong></small>
       </a>

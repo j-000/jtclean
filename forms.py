@@ -18,9 +18,13 @@ class RegisterForm(FlaskForm):
 
 
 class UpdateUser(FlaskForm):
-    email = StringField('O seu Email', validators=[InputRequired(), Email(message='Email invalido!')])
+    email = StringField('O seu email', validators=[InputRequired(), Email(message='Email invalido!')])
     password = PasswordField('A sua password atual', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
-    new_password = PasswordField('Nova Password', validators=[Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+    new_password = PasswordField('Nova password', validators=[Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+
+class UpdateUserAccount(FlaskForm):
+    role = SelectField('Tipo de utilizador', choices=[('Admin','Admin')], validators=[])
+    accountType = BooleanField('Conta Premium?')
 
 
 class ServiceForm(FlaskForm):
@@ -48,7 +52,7 @@ class BookingNotesForm(FlaskForm):
 
 
 class BookingUpdateForm(FlaskForm):
-    service = StringField('Servico')
+    service = SelectField('Servico')
     amount_paid = DecimalField('Nova Quantia')
     completed = BooleanField('Completo')
     cleaner = StringField('Empregado/a')

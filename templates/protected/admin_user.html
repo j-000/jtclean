@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 {% block body %}
 <div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
   <!-- BEGIN FLASH MESSAGES -->
@@ -16,9 +17,6 @@
   <div class="row" style="padding: 0;">
     <div class="col-md-7">
       <h5>Perfil</h5>
-
-      # form to change user deatils
-      # stats for this user
       <table class="table">
         <thead>
           <tr>
@@ -44,8 +42,8 @@
             <td>£ {{ user.get_total_vat() }} </td>
           </tr>
           <tr>
-            <td><strong>Empregadas</strong></td>
-            <td></td>
+            <td><strong>Empregado/a</strong></td>
+            <td>{{ user.get_cleaner() }}</td>
           </tr>
           <tr>
             <td><strong>Servicos</strong></td>
@@ -55,9 +53,30 @@
             <td><strong>Ultimo Servico</strong></td>
             <td></td>
           </tr>
+          <tr>
+            <td><strong>Tipo de Conta</strong></td>
+            {% if user.premium %}
+              <td><span class="badge badge-success">Premium</span></td>
+            {% else %}
+              <td><span class="badge badge-secondary">Standard</span></td>
+            {% endif %}
+          </tr>
+          <tr>
+            <td><strong>Tipo de Utilizador</strong></td>
+            {% if user.role == 'Admin' %}
+              <td><span class="badge badge-danger">Admin</span></td>
+            {% else %}
+              <td><span class="badge badge-info">{{user.role}}</span></td>
+            {% endif %}
+          </tr>
         </tbody>
       </table>
-
+      <form action="{{ url_for('admin_user', user_id=user.id) }}" method="POST">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.role) }}
+        {{ wtf.form_field(form.accountType) }}
+        <input type="submit" class="btn btn-default btn-md" value="Modificar">
+      </form>
     </div>
     <div class="col-md-5">
       <h5>Bookings</h5>
