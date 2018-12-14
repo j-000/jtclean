@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin ,login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser
 import datetime
 import json
 from sqlalchemy import desc
@@ -580,7 +580,27 @@ def open_message(message_id):
 @app.route('/profile/settings', methods=['GET','POST'])
 @login_required
 def profile_settings():
-  return render_template('protected/profile_settings.html')
+  form = UpdateUser()
+  if form.validate_on_submit():
+    user = User.query.filter_by(id=current_user.id).first()
+    email_exists = User.query.filter_by(email=form.email.data).first()
+    if check_password_hash(user.password, form.password.data) and not email_exists:
+      user.email = form.email.data
+      if form.new_password.data:
+        user.password = generate_password_hash(form.new_password.data, method='sha256')
+      db.session.commit()
+      flash('A sua conta foi alterada com sucesso. Faca o login novamente.', 'success')
+      logout_user()
+      return redirect(url_for('login'))
+
+    else:
+      flash('Palavra passe errada ou email ja existe.', 'danger')
+      return redirect(url_for('profile'))
+
+  return render_template('protected/profile_settings.html', form=form)
+
+
+
 
 
 # Logout route

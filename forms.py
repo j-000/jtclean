@@ -17,6 +17,10 @@ class RegisterForm(FlaskForm):
     company = BooleanField('Negocio / Empresa')
 
 
+class UpdateUser(FlaskForm):
+    email = StringField('O seu Email', validators=[InputRequired(), Email(message='Email invalido!')])
+    password = PasswordField('A sua password atual', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+    new_password = PasswordField('Nova Password', validators=[Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
 
 
 class ServiceForm(FlaskForm):
@@ -56,5 +60,6 @@ class BookingUpdateForm(FlaskForm):
 class SendMessageForm(FlaskForm):
     to_user = SelectField('Para:', id='messageToUserField' , choices=[(0, 'Geral')], coerce=int, validators=[InputRequired()])
     message = TextAreaField('Mensagem:', validators=[InputRequired()])
+
 
 
