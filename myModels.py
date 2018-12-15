@@ -1,12 +1,17 @@
 import datetime
-from __main__ import app
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'
+app.config['SECRET_KEY'] = 'r25hetAJAOWEHH2829292DJDOFUSODFUOSDJFweewefe515615'
 db = SQLAlchemy(app)
 
 class Role(db.Model):
-  ''' ID |
+  ''' ID
       1 - User - Cliente or Company
       2 - Staff - Empregado/a, Supervisora, Manager
       3 - Admin - Administrador
@@ -136,7 +141,7 @@ class Booking(db.Model):
     return User.query.filter_by(id=self.user_id).first()
 
   def get_booking_notes(self): # admin staff's notes
-    return BookingNote.query.filter_by(booking_id=self.id).all()
+    return BookingNote.query.filter_by(booking_id=self.id).order_by(BookingNote.created_on.desc()).all()
 
   def get_booking_service(self):
     return Service.query.filter_by(id=self.service_id).first()
@@ -194,6 +199,17 @@ class Message(db.Model):
 
   def get_message_receiver(self):
     return User.query.filter_by(id=self.to_user_id).first()
+
+
+
+class Activity(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer)
+  action = db.Column(db.String(100))
+  timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+
+  def get_user_name(self):
+    return User.query.filter_by(id=user_id).first()
 
 
 

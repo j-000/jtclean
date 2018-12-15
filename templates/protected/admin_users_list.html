@@ -14,40 +14,42 @@
   {% endwith %}
   <!-- END FLASH MESSAGES -->
   <div class="row" style="padding: 0;">
-    <h1>TODO: add a form to search for a user</h1>
     <div class="col-md">
-       <div>
-        <table class="table">
-          <thead class="thead-dark">
+      <form action="{{ url_for('login') }}" method="POST">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.search_field) }}
+        <input type="submit" class="btn btn-default btn-md" value="Entrar">
+      </form>
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Apelido</th>
+            <th>Email</th>
+            <th>Permissoes</th>
+            <th>Premium</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users_array %}
             <tr>
-              <th>id</th>
-              <th>Nome</th>
-              <th>Apelido</th>
-              <th>Email</th>
-              <th>Permissoes</th>
-              <th>Premium</th>
+              <td><a  href="{{ url_for('admin_user', user_id=user.id) }}">{{ user.id }}</a></td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.surname }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.get_user_role().name }}</td>
+              <td>
+                {% if user.premium %}
+                <span class="badge badge-success">Premium</span>
+                {% else %}
+                <span class="badge badge-secondary">Standard</span>
+                {% endif %}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {% for user in users_array %}
-              <tr>
-                <td><a  href="{{ url_for('admin_user', user_id=user.id) }}">{{ user.id }}</a></td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.surname }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.get_user_role().name }}</td>
-                <td>
-                  {% if user.premium %}
-                  <span class="badge badge-success">Premium</span>
-                  {% else %}
-                  <span class="badge badge-secondary">Standard</span>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

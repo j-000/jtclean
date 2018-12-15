@@ -69,3 +69,6 @@ class SendMessageForm(FlaskForm):
 
 
 
+class SearchForUserForm(FlaskForm):
+    search_field = StringField('Pesquisar')
+

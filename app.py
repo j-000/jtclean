@@ -1,22 +1,17 @@
-from flask import Flask, url_for, render_template, flash, redirect, request
+from flask import url_for, render_template, flash, redirect, request
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount, SearchForUserForm
 import datetime
 from datetime import date, timedelta
 import json
 from sqlalchemy import desc
+from myModels import app
 
-
-app = Flask(__name__)
 Bootstrap(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'r25hetAJAOWEHH2829292DJDOFUSODFUOSDJFweewefe515615'
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -161,7 +156,9 @@ def admin_dashboard():
 @login_required
 def admin_users_list():
   users_array = User.query.all()
-  return render_template('protected/admin_users_list.html', users_array=users_array)
+  form = SearchForUserForm()
+
+  return render_template('protected/admin_users_list.html', users_array=users_array, form=form)
 
 
 @app.route('/admin/admin_bookings_list')
@@ -229,6 +226,17 @@ def admin_user(user_id):
 
 
 
+
+def add_booking_note(user_id, booking_id, text):
+  try:
+    new_note = BookingNote(user_id=user_id, booking_id=booking_id, text=text)
+    db.session.add(new_note)
+    db.session.commit()
+    return True
+  except Exception as e:
+    return False
+
+
 # Admin route for Admins to modify bookings
 @app.route('/admin/booking/<booking_id>', methods=['GET', 'POST'])
 @login_required
@@ -237,19 +245,15 @@ def admin_booking(booking_id):
   if current_user.role == ADMIN:
     form = BookingNotesForm()
     form2 = BookingUpdateForm()
+    services_array = Service.query.filter_by(active=True).all()
+    form2.service.choices = [(i.id, i.name) for i in services_array]
 
     if request.method == 'POST' and form.validate_on_submit():
-      new_note = BookingNote(
-                    user_id=current_user.id,
-                    booking_id=booking_id,
-                    text=form.text.data)
-      db.session.add(new_note)
-      db.session.commit()
-      flash('Nota adicionada com sucesso.', 'info')
-      return redirect(url_for('admin_booking', booking_id=booking_id))
+      if add_booking_note(current_user.id, booking_id, form.text.data):
+        flash('Nota adicionada com sucesso.', 'info')
+        return redirect(url_for('admin_booking', booking_id=booking_id))
 
     if request.method == 'POST' and form2.validate_on_submit():
-
       if form2.service.data == None or form2.amount_paid.data == None:
         flash('Erro - Corrija o servico ou o valor do servico.', 'danger')
         return redirect(url_for('admin_booking', booking_id=booking_id))
@@ -261,14 +265,12 @@ def admin_booking(booking_id):
         updated_booking.cleaner = form2.cleaner.data
         updated_booking.supervisor = form2.supervisor.data
         db.session.commit()
+
         flash('Booking modificado com sucesso.', 'success')
-        return redirect(url_for('admin_booking',booking_id=booking_id))
+        return redirect(url_for('admin_booking', booking_id=booking_id))
 
     booking = Booking.query.filter_by(id=booking_id).first()
     if booking:
-      services_array = Service.query.filter_by(active=True).all()
-      form2.service.choices = [(i.id, i.name) for i in services_array]
-
       return render_template('protected/admin_booking.html', booking=booking, form=form, form2=form2)
     else:
       flash('Esse booking nao e valido.', 'danger')

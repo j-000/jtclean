@@ -51,9 +51,6 @@
       </form>
       {% endif %}
 
-
-
-
     </div>
     <div class="col-md">
       <h4>Notas</h4>
@@ -62,7 +59,7 @@
           <div class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1"></h5>
-              <small>{{ note.get_note_user().name }} | {{ note.created_on }}</small>
+              <small>{{ note.get_note_user().name }} | {{ moment(note.created_on).calendar() }}</small>
             </div>
             <p class="mb-1">{{ note.text }}</p>
             <small></small>
