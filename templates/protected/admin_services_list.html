@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+  <div class="row" style="padding: 0;">
+    <div class="col-md-4">
+      <h4>Novo Servico</h4>
+      <br>
+      <form action="{{ url_for('admin_services_list') }}" method="POST">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.name) }}
+        {{ wtf.form_field(form.description) }}
+        {{ wtf.form_field(form.price, value=0.00) }}
+        <input type="submit" class="btn btn-default btn-md" value="Adicionar">
+      </form>
+    </div>
+    <div class="col-md-8">
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Preco</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for service in services_array %}
+            <tr>
+              <td><a href="{{ url_for('admin_service', service_id=service.id) }}">{{ service.id }}</a></td>
+              <td>{{ service.name }}</td>
+              <td>{{ service.price }}</td>
+              <td>
+                {% if service.active %}
+                <span class="badge badge-success">Activo</span>
+                {% else %}
+                <span class="badge badge-danger">Desactivado</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

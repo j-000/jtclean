@@ -44,7 +44,7 @@
       </a>
     </div>
     <div class="col-md-4">
-      <a href=" {{ url_for('dashboard') }} " class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+      <a  style="background-image: url('{{ url_for('static', filename='images/locked.svg') }}'); background-repeat: no-repeat; background-position: center; background-size: 75px;" href=" {{ url_for('dashboard') }} "  class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Dashboard</h5>
           <small class="badge badge-warning">Premium</small>
@@ -60,7 +60,7 @@
     <div class="col-md text-center">
       <a class="btn btn-outline-secondary" href="{{ url_for('profile_settings') }}">Definicoes</a>
 
-      {% if current_user.role == 'Admin' %}
+      {% if current_user.is_admin() %}
       <a class="btn btn-outline-secondary" href="{{ url_for('admin') }}">Admin Area</a>
       {% endif %}
 

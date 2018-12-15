@@ -14,17 +14,19 @@ class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[InputRequired(), Email(message='Email invalido!')])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
     password2 = PasswordField('Confirme Password', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
-    company = BooleanField('Negocio / Empresa')
 
 
 class UpdateUser(FlaskForm):
     email = StringField('O seu email', validators=[InputRequired(), Email(message='Email invalido!')])
     password = PasswordField('A sua password atual', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
-    new_password = PasswordField('Nova password', validators=[Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+    new_password = PasswordField('Nova password')
+
 
 class UpdateUserAccount(FlaskForm):
-    role = SelectField('Tipo de utilizador', choices=[('Admin','Admin')], validators=[])
-    accountType = BooleanField('Conta Premium?')
+    role = SelectField('Tipo de utilizador', coerce=int)
+    premium = BooleanField('Conta Premium?')
+
+
 
 
 class ServiceForm(FlaskForm):

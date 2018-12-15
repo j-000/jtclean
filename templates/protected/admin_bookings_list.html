@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+  <div class="row" style="padding: 0;">
+    <h1>TODO: add a form to search for a booking</h1>
+    <div class="col-md">
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th>ID</th>
+            <th>ID Utilizador</th>
+            <th>Servico</th>
+            <th>Quantia Paga</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings_array %}
+            <tr>
+              <td><a href="{{ url_for('admin_booking', booking_id=booking.id) }}">{{ booking.id }}</a></td>
+              <td><a href="{{ url_for('admin_user', user_id=booking.user_id) }}">{{ booking.user_id }}</a></td>
+              <td>{{ booking.get_booking_service().name }}</td>
+              <td>{{ booking.amount_paid }}</td>
+              <td>
+                {% if booking.completed %}
+                <span class="badge badge-success">Completo</span>
+                {% else %}
+                <span class="badge badge-danger">Incompleto</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -15,242 +15,89 @@
   <!-- END FLASH MESSAGES -->
 
   <div class="row" style="padding: 0;">
-    <div class="col-md-4">
-      <ul class="list-group">
-        <a class="escolha" id="#one" href="javascript:void(0)">
-          <li class="list-group-item">Dashboard</li>
-        </a>
-        <a class="escolha" id="#two" href="javascript:void(0)">
-          <li class="list-group-item">Users</li>
-        </a>
-        <a class="escolha" id="#three" href="javascript:void(0)">
-          <li class="list-group-item">Bookings</li>
-        </a>
-        <a class="escolha" id="#four" href="javascript:void(0)">
-          <li class="list-group-item">Services</li>
-        </a>
-      </ul>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_dashboard') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Dashboard</h5>
+        </div>
+        <br>
+        <p class="mb-1">Textp</p>
+        <small><strong>Testo pequeno</strong></small>
+      </a>
     </div>
-    <div class="col-md-8">
-
-      <div class="escolha-div" id="one">
-        <div class="row" style="padding: 0;">
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title">Hoje</h4>
-                <table class="table table-borderless table-sm">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><span class="badge badge-info">Bookings:</span></td>
-                      <td>{{ bookings_stats['today'] }}</td>
-                    </tr>
-                    <tr>
-                      <td><span class="badge badge-info">Clientes:</span></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td><span class="badge badge-danger">Cancelamentos:</span></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title">Ultimos 7 dias</h4>
-                <table class="table table-borderless table-sm">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><span class="badge badge-info">Bookings:</span></td>
-                      <td>{{ bookings_stats['week'] }}</td>
-                    </tr>
-                    <tr>
-                      <td><span class="badge badge-info">Clientes:</span></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td><span class="badge badge-danger">Cancelamentos:</span></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title">Ultimos 30 dias</h4>
-                <table class="table table-borderless table-sm">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><span class="badge badge-info">Bookings:</span></td>
-                      <td>{{ bookings_stats['month'] }}</td>
-                    </tr>
-                    <tr>
-                      <td><span class="badge badge-info">Clientes:</span></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td><span class="badge badge-danger">Cancelamentos:</span></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+    <div class="col-md-3">
+    <a href="{{ url_for('admin_users_list') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Lista de Utilizadores</h5>
+      </div>
+      <br>
+      <p class="mb-1">Textp</p>
+      <small><strong>Testo pequeno</strong></small>
+    </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_bookings_list') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Lista de Bookings</h5>
         </div>
         <br>
-        <div class="row" style="padding: 0;">
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body">
-                This is some text within a card block.
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body">
-                This is some text within a card block.
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body">
-                This is some text within a card block.
-              </div>
-            </div>
-          </div>
+        <p class="mb-1">Textp</p>
+        <small><strong>Testo pequeno</strong></small>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_services_list') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Lista de Servicos</h5>
         </div>
-      </div>
-
-      <div class="escolha-div" id="two" style="display: none;">
-        <table class="table">
-          <thead class="thead-dark">
-            <tr>
-              <th>id</th>
-              <th>name</th>
-              <th>surname</th>
-              <th>email</th>
-              <th>role</th>
-              <th>premium</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for user in users_array %}
-              <tr>
-                <td><a  href="{{ url_for('admin_user', user_id=user.id) }}">{{ user.id }}</a></td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.surname }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.role }}</td>
-                <td>
-                  {% if user.premium %}
-                  <span class="badge badge-success">Premium</span>
-                  {% else %}
-                  <span class="badge badge-secondary">Standard</span>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="escolha-div" id="three" style="display: none;">
-        <table class="table">
-          <thead class="thead-dark">
-            <tr>
-              <th>id</th>
-              <th>user_id</th>
-              <th>service</th>
-              <th>amount_paid</th>
-              <th>completed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for booking in bookings_array %}
-              <tr>
-                <td><a href="{{ url_for('admin_booking', booking_id=booking.id) }}">{{ booking.id }}</a></td>
-                <td><a href="{{ url_for('admin_user', user_id=booking.user_id) }}">{{ booking.user_id }}</a></td>
-                <td>{{ booking.get_booking_service() }}</td>
-                <td>{{ booking.amount_paid }}</td>
-                <td>
-                  {% if booking.completed %}
-                  <span class="badge badge-success">Completo</span>
-                  {% else %}
-                  <span class="badge badge-danger">Incompleto</span>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="escolha-div" id="four" style="display: none;">
-        <h4>Novo Servico</h4>
-        <form action="{{ url_for('admin') }}" method="POST">
-          {{ form.hidden_tag() }}
-          {{ wtf.form_field(form.name) }}
-          {{ wtf.form_field(form.description) }}
-          {{ wtf.form_field(form.price, value=0.00) }}
-          <input type="submit" class="btn btn-default btn-md" value="Adicionar">
-        </form>
         <br>
-        <table class="table">
-          <thead class="thead-dark">
-            <tr>
-              <th>id</th>
-              <th>name</th>
-              <th>price</th>
-              <th>active</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for service in services_array %}
-              <tr>
-                <td>{{ service.id }}</td>
-                <td>{{ service.name }}</td>
-                <td>{{ service.price }}</td>
-                <td>
-                  {% if service.active %}
-                  <span class="badge badge-success">Activo</span>
-                  {% else %}
-                  <span class="badge badge-danger">Desactivado</span>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
+        <p class="mb-1">Textp</p>
+        <small><strong>Testo pequeno</strong></small>
+      </a>
+    </div>
+  </div>
+  <br>
+  <br>
+  <div class="row" style="padding: 0;">
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_dashboard') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Lista de Cleaners e Gerentes</h5>
+        </div>
+        <br>
+        <p class="mb-1">Textp</p>
+        <small><strong>Testo pequeno</strong></small>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_dashboard') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Lista de Administradores</h5>
+        </div>
+        <br>
+        <p class="mb-1">Textp</p>
+        <small><strong>Testo pequeno</strong></small>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_dashboard') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1"></h5>
+        </div>
+        <br>
+        <p class="mb-1"></p>
+        <small><strong> </strong></small>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_dashboard') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1"></h5>
+        </div>
+        <br>
+        <p class="mb-1"></p>
+        <small><strong> </strong></small>
+      </a>
     </div>
   </div>
 </div>

@@ -1,8 +1,8 @@
-from flask import Flask, url_for, render_template, flash, redirect
+from flask import Flask, url_for, render_template, flash, redirect, request
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from flask_login import UserMixin ,login_required, current_user, LoginManager, login_user, logout_user
+from flask_login import login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount
 import datetime
@@ -17,187 +17,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'r25hetAJAOWEHH2829292DJDOFUSODFUOSDJFweewefe515615'
 
-db = SQLAlchemy(app)
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-# login_manager.login_message = 'Por favor entre na sua conta.' # overiden by unauthorized_handler
 
 moment = Moment(app)
-
-class User(db.Model, UserMixin):
-  id = db.Column(db.Integer, primary_key=True)
-  timestamp = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
-  name = db.Column(db.String(30))
-  surname = db.Column(db.String(30))
-  email = db.Column(db.String(50), unique=True)
-  password = db.Column(db.String(85))
-  role = db.Column(db.String(20), default='Cliente')
-  premium = db.Column(db.Boolean(), default=False)
-
-  def get_user_bookings(self):
-    return Booking.query.filter_by(user_id=self.id).all()
-
-  def get_total_bookings(self):
-    return len(Booking.query.filter_by(user_id=self.id).all())
-
-  def get_total_paid(self):
-    total = 0
-    for i in self.get_user_bookings():
-      total += i.amount_paid
-    return total
-
-  def get_total_vat(self):
-    total = self.get_total_paid()
-    vat = total - ( total / 1.2 )
-    return round(vat, 2)
-
-  def get_messages_from_user(self):
-    return Message.query.filter_by(from_user_id=self.id).order_by(Message.timestamp.desc()).all()
-
-  def get_messages_to_user(self):
-    return Message.query.filter_by(to_user_id=self.id).order_by(Message.timestamp.desc()).all()
-
-  def get_total_messages_to_user(self):
-    return len(Message.query.filter_by(to_user_id=self.id).all())
-
-  def get_total_unread_messages_to_user(self):
-    return len(Message.query.filter_by(to_user_id=self.id, read=False).all())
-
-  def get_cleaner(self):
-    return Cleaner.query.filter_by(user_id=self.id).first()
-
-
-
-
-
-
-
-
-class Cleaner(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, unique=True)
-  available = db.Column(db.Boolean(), default=True)
-  rate = db.Column(db.Float(), default=5)
-  position = db.Column(db.String(20), default='Cleaner')
-
-
-  def get_cleaner_details(self):
-    return User.query.filter_by(id=user_id).first()
-
-
-
-
-
-
-
-class Booking(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-  user_id = db.Column(db.Integer)
-  property_type = db.Column(db.String(20))
-  service_id = db.Column(db.Integer)
-  date_from = db.Column(db.String(25))
-  date_to = db.Column(db.String(25))
-  start_time = db.Column(db.String(10))
-  duration = db.Column(db.Integer)
-  amount_paid = db.Column(db.Float())
-  comment = db.Column(db.Text()) # customer's coment
-  completed = db.Column(db.Boolean(), default=False)
-  cleaner = db.Column(db.String(10), nullable=True, default=None)
-  supervisor = db.Column(db.String(10), nullable=True, default=None)
-
-  def get_booking_user(self):
-    return User.query.filter_by(id=self.user_id).first()
-
-  def get_booking_notes(self): # admin staff's notes
-    return BookingNote.query.filter_by(booking_id=self.id).all()
-
-  def get_booking_service(self):
-    return Service.query.filter_by(id=self.service_id).first()
-
-  def get_assignable_staff(self):
-    return Cleaner.query.filter_by(available=True).all()
-
-  def get_service(self):
-    return Service.query.filter_by(id=self.service_id).first()
-
-
-
-
-
-
-
-
-class BookingNote(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  booking_id = db.Column(db.Integer)
-  user_id = db.Column(db.Integer)
-  text = db.Column(db.Text())
-  created_on = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
-
-  def get_note_user(self):
-    return User.query.filter_by(id=self.user_id).first()
-
-
-
-
-
-
-
-class Service(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(20))
-  description = db.Column(db.Text())
-  price = db.Column(db.Float())
-  active = db.Column(db.Boolean(), default=True)
-
-
-
-
-
-class Message(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  from_user_id = db.Column(db.Integer)
-  to_user_id = db.Column(db.Integer)
-  timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
-  message = db.Column(db.Text())
-  read = db.Column(db.Boolean(), default=False)
-
-  def get_message_sender(self):
-    return User.query.filter_by(id=self.from_user_id).first()
-
-  def get_message_receiver(self):
-    return User.query.filter_by(id=self.to_user_id).first()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+from myModels import db, Role, User, StaffMember, JobRole, Booking, BookingNote, Service, Message
 
 # USER LOADER
 @login_manager.user_loader
 def load_user(user_id):
   return User.query.get(int(user_id))
-
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -208,10 +38,10 @@ def unauthorized():
 # ROUTES
 # Index route - main page
 @app.route('/')
+@app.route('/home')
+@app.route('/index')
 def index():
     return render_template('public/index.html')
-
-
 
 
 
@@ -219,17 +49,13 @@ def index():
 @app.route('/registo', methods=['GET','POST'])
 def registo():
   form = RegisterForm()
-  if form.validate_on_submit():
+  if request.method == 'POST' and form.validate_on_submit():
     hashed_password = generate_password_hash(form.password.data, method='sha256')
-    if form.company.data:
-        role = 'Empresa'
-
     new_user = User(
             name=form.name.data,
             surname=form.surname.data,
             email=form.email.data,
-            password=hashed_password,
-            role = role)
+            password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
     flash('A sua conta foi criada com sucesso!', 'success')
@@ -239,41 +65,23 @@ def registo():
 
 
 
-
-
-
-
-
-
-
-
 # Login route
 @app.route('/login', methods=['GET','POST'])
 def login():
   form = LoginForm()
-  if form.validate_on_submit():
+  if request.method == 'POST' and form.validate_on_submit():
     user = User.query.filter_by(email=form.email.data).first()
     if user:
       if check_password_hash(user.password, form.password.data):
         login_user(user)
         return redirect(url_for('profile'))
-      flash('A palavra passe nao esta correcta.', 'info')
+      else:
+        flash('A palavra passe nao esta correcta.', 'info')
     else:
       flash('Esse email nao se encontra registado.', 'info')
     return redirect(url_for('login'))
 
   return render_template('public/login.html', form=form)
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -292,66 +100,26 @@ def profile():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Admin route for Admin users
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET'])
 @login_required
 def admin():
-  if current_user.role == 'Admin':
-    form = ServiceForm()
-    if form.validate_on_submit():
-      new_service = Service(name=form.name.data,
-                            description=form.description.data,
-                            price=form.price.data)
-      db.session.add(new_service)
-      db.session.commit()
-      flash('Servico adicionado com sucesso', 'success')
-      return redirect(url_for('admin'))
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    return render_template('protected/admin.html')
+  flash('Area restrista para administradores.', 'danger')
+  return redirect(url_for('profile'))
 
-    users_array = User.query.all()
-    services_array = Service.query.all()
 
-    #  REFACTOR THIS OUT TO AN API
-    bookings_array = Booking.query.all()
-    bookings_stats = {
-      'total': len(bookings_array),
-      'today':0,
-      'week':0,
-      'month':0,
-    }
-    _today = datetime.datetime.utcnow().date()
-    _fiveDaysAgo = _today - timedelta(7)
-    _thirtyDaysAgo = _today - timedelta(30)
 
-    for booking in bookings_array:
-      booking_date = booking.timestamp.date()
-      if booking_date == _today:
-        bookings_stats['today'] += 1
-      if booking_date >= _fiveDaysAgo and booking_date <= _today:
-        bookings_stats['week'] += 1
-      if booking_date >= _thirtyDaysAgo and booking_date <= _today:
-        bookings_stats['month'] += 1
-    # REFACTOR END
 
-    return render_template('protected/admin.html',
-                            users_array=users_array,
-                            bookings_array=bookings_array,
-                            services_array=services_array,
-                            bookings_stats=bookings_stats,
-                            form=form)
-
+# Admin route to edit services
+@app.route('/admin/admin_services_list/service/<service_id>', methods=['GET'])
+@login_required
+def admin_service(service_id):
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    return render_template('protected/admin.html')
   flash('Area restrista para administradores.', 'danger')
   return redirect(url_for('profile'))
 
@@ -361,7 +129,70 @@ def admin():
 
 
 
+@app.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+  #  REFACTOR THIS OUT TO AN API
+  bookings_array = Booking.query.all()
+  bookings_stats = {
+    'total': len(bookings_array),
+    'today':0,
+    'week':0,
+    'month':0,
+  }
+  _today = datetime.datetime.utcnow().date()
+  _fiveDaysAgo = _today - timedelta(7)
+  _thirtyDaysAgo = _today - timedelta(30)
 
+  for booking in bookings_array:
+    booking_date = booking.timestamp.date()
+    if booking_date == _today:
+      bookings_stats['today'] += 1
+    if booking_date >= _fiveDaysAgo and booking_date <= _today:
+      bookings_stats['week'] += 1
+    if booking_date >= _thirtyDaysAgo and booking_date <= _today:
+      bookings_stats['month'] += 1
+  # REFACTOR END
+
+  return render_template('protected/admin_dashboard.html', bookings_stats=bookings_stats)
+
+
+@app.route('/admin/users_list')
+@login_required
+def admin_users_list():
+  users_array = User.query.all()
+  return render_template('protected/admin_users_list.html', users_array=users_array)
+
+
+@app.route('/admin/admin_bookings_list')
+@login_required
+def admin_bookings_list():
+  bookings_array = Booking.query.all()
+  return render_template('protected/admin_bookings_list.html', bookings_array=bookings_array)
+
+
+
+@app.route('/admin/admin_services_list', methods=['GET', 'POST'])
+@login_required
+def admin_services_list():
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    form = ServiceForm()
+    services_array = Service.query.all()
+
+    if request.method == 'POST' and form.validate_on_submit():
+      new_service = Service(name=form.name.data,
+                                    description=form.description.data,
+                                    price=form.price.data)
+      db.session.add(new_service)
+      db.session.commit()
+      flash('Servico adicionado com sucesso', 'success')
+      return redirect(url_for('admin_services_list'))
+    else:
+      return render_template('protected/admin_services_list.html', services_array=services_array, form=form)
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
 
 
 
@@ -369,30 +200,32 @@ def admin():
 @app.route('/admin/user/<user_id>', methods=['GET', 'POST'])
 @login_required
 def admin_user(user_id):
-  if current_user.role == 'Admin':
-    form = UpdateUserAccount()
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role is ADMIN:
     user = User.query.filter_by(id=user_id).first()
+
     if user:
-      if form.validate_on_submit():
+      form = UpdateUserAccount(obj=user)
+      roleChoices = [(i.id, i.name) for i in Role.query.all()]
+      form.role.choices = roleChoices
+
+      if request.method == 'POST' and form.validate_on_submit():
         user.role = form.role.data
-        user.premium = form.accountType.data
+        user.premium = form.premium.data
         db.session.commit()
-        flash('Perfile modificado com sucesso.','success')
+
+        flash('User modificado com successo', 'success')
         return redirect(url_for('admin_user', user_id=user_id))
 
       return render_template('protected/admin_user.html', user=user, form=form)
+
     else:
       flash('Esse user nao existe.', 'danger')
       return redirect(url_for('admin'))
-  flash('Area restrista para administradores.', 'danger')
-  return redirect(url_for('profile'))
 
-
-
-
-
-
-
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
 
 
 
@@ -400,11 +233,12 @@ def admin_user(user_id):
 @app.route('/admin/booking/<booking_id>', methods=['GET', 'POST'])
 @login_required
 def admin_booking(booking_id):
-  if current_user.role == 'Admin':
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
     form = BookingNotesForm()
     form2 = BookingUpdateForm()
 
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
       new_note = BookingNote(
                     user_id=current_user.id,
                     booking_id=booking_id,
@@ -414,7 +248,7 @@ def admin_booking(booking_id):
       flash('Nota adicionada com sucesso.', 'info')
       return redirect(url_for('admin_booking', booking_id=booking_id))
 
-    if form2.validate_on_submit():
+    if request.method == 'POST' and form2.validate_on_submit():
 
       if form2.service.data == None or form2.amount_paid.data == None:
         flash('Erro - Corrija o servico ou o valor do servico.', 'danger')
@@ -445,34 +279,6 @@ def admin_booking(booking_id):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # New booking route
 @app.route('/book', methods=['GET','POST'])
 @login_required
@@ -482,7 +288,7 @@ def book():
   choices = [(0,'Escolha um servico')] + [(i.id, i.name) for i in available_services]
   bookingForm.service.choices = choices
 
-  if bookingForm.validate_on_submit():
+  if request.method == 'POST' and bookingForm.validate_on_submit():
 
     service_price = Service.query.filter_by(id=bookingForm.service.data).first().price
 
@@ -507,17 +313,7 @@ def book():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+# API route
 @app.route('/api/service/<service_id>', methods=['GET', 'POST'])
 @login_required
 def api_services(service_id):
@@ -531,11 +327,6 @@ def api_services(service_id):
 
 
 
-
-
-
-
-
 # Dashboard route
 @app.route('/profile/dashboard', methods=['GET','POST'])
 @login_required
@@ -544,19 +335,12 @@ def dashboard():
 
 
 
-
-
-
-
-
-
-
 # Messages route
 @app.route('/profile/messages', methods=['GET','POST'])
 @login_required
 def messages():
   messageForm = SendMessageForm()
-  if messageForm.validate_on_submit():
+  if request.method == 'POST' and messageForm.validate_on_submit():
     new_message = Message(
                   from_user_id = current_user.id,
                   to_user_id = messageForm.to_user.data,
@@ -571,53 +355,31 @@ def messages():
 
 
 
-
-@app.route('/profile/messages/<message_id>', methods=['GET','POST'])
+# Open message route
+@app.route('/profile/messages/<message_id>', methods=['GET'])
 @login_required
 def open_message(message_id):
   message = Message.query.filter_by(id=message_id).first()
+  if message:
+    if message.to_user_id == current_user.id or message.from_user_id == current_user.id:
+      messageForm = SendMessageForm()
 
-  if message.to_user_id == current_user.id or message.from_user_id == current_user.id:
-    messageForm = SendMessageForm()
-    if not message.read:
-      message.read = True
-      db.session.commit()
+      if not message.read:
+        message.read = True
+        db.session.commit()
 
-    return render_template('protected/open_message.html', message=message, form=messageForm)
+      return render_template('protected/open_message.html', message=message, form=messageForm)
   flash('Essa mensagem nao existe.', 'danger')
   return redirect(url_for('messages'))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# User Profile settings route
 @app.route('/profile/settings', methods=['GET','POST'])
 @login_required
 def profile_settings():
   form = UpdateUser()
-  if form.validate_on_submit():
+  if request.method == 'POST' and form.validate_on_submit():
     user = User.query.filter_by(id=current_user.id).first()
     email_exists = User.query.filter_by(email=form.email.data).first()
     if check_password_hash(user.password, form.password.data) and not email_exists:
@@ -628,14 +390,11 @@ def profile_settings():
       flash('A sua conta foi alterada com sucesso. Faca o login novamente.', 'success')
       logout_user()
       return redirect(url_for('login'))
-
     else:
       flash('Palavra passe errada ou email ja existe.', 'danger')
       return redirect(url_for('profile'))
 
   return render_template('protected/profile_settings.html', form=form)
-
-
 
 
 
@@ -654,6 +413,66 @@ def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 
+
+############## HELPER DUMMY FUCNTIONS
+
+def create_roles():
+  # Add Roles
+  u = Role(name='User')
+  s = Role(name='Staff')
+  a = Role(name='Admin')
+  db.session.add(u)
+  db.session.add(s)
+  db.session.add(a)
+  db.session.commit()
+  return None
+
+
+def create_job_roles():
+  # Add JobRoles
+  cl = JobRole(name='Cleaner')
+  sp = JobRole(name='Supervisor')
+  mn = JobRole(name='Manager')
+  db.session.add(cl)
+  db.session.add(sp)
+  db.session.add(mn)
+  db.session.commit()
+  return None
+
+def create_sample_users():
+  admin_user = User(name='Admin',
+                  surname='Office',
+                  email='a@jt.com',
+                  password=generate_password_hash('tina1234', method='sha256'),
+                  role=3,
+                  premium=True)
+  db.session.add(admin_user)
+
+  # add a cleaner
+  cleaner_user = User(name='Tina',
+                surname='Silva',
+                email='t@jt.com',
+                password=generate_password_hash('tina1234', method='sha256'),
+                role=2)
+  db.session.add(cleaner_user)
+
+  # add a customer
+  customer_user = User(name='Bob',
+                surname='Dowie',
+                email='b@jt.com',
+                password=generate_password_hash('tina1234', method='sha256'))
+  db.session.add(customer_user)
+
+  db.session.commit()
+  return None
+
+############## END HELPER DUMMY FUNCTIONS
+
+
+
 # Start app
 if __name__ == '__main__':
-    app.run(debug=True)
+  # create_roles()
+  # create_job_roles()
+  # create_sample_users()
+  app.run(debug=True)

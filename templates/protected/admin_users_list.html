@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+  <div class="row" style="padding: 0;">
+    <h1>TODO: add a form to search for a user</h1>
+    <div class="col-md">
+       <div>
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th>id</th>
+              <th>Nome</th>
+              <th>Apelido</th>
+              <th>Email</th>
+              <th>Permissoes</th>
+              <th>Premium</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users_array %}
+              <tr>
+                <td><a  href="{{ url_for('admin_user', user_id=user.id) }}">{{ user.id }}</a></td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.surname }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.get_user_role().name }}</td>
+                <td>
+                  {% if user.premium %}
+                  <span class="badge badge-success">Premium</span>
+                  {% else %}
+                  <span class="badge badge-secondary">Standard</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
