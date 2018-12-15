@@ -28,7 +28,7 @@
           <h6 class="card-subtitle mb-2 text-left"><strong>Total:</strong> £ {{ booking.amount_paid }}</h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Metodo de pagamento:</strong> Cartao</h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Cartao: </strong> Visa 5968 </h6>
-          <h6 class="card-subtitle mb-2 text-left"><strong>Servico:</strong> {{ booking.get_service().name }}</h6>
+          <h6 class="card-subtitle mb-2 text-left"><strong>Servico:</strong> {{ booking.get_booking_service().name }}</h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Supervisor/a:</strong> {{ booking.supervisor }} </h6>
           <h6 class="card-subtitle mb-2 text-left"><strong>Empregada/o:</strong> {{ booking.cleaner }} </h6>
         </div>

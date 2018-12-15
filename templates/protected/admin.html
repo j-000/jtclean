@@ -21,7 +21,7 @@
           <h5 class="mb-1">Dashboard</h5>
         </div>
         <br>
-        <p class="mb-1"></p>
+        <img width="75" src="{{ url_for('static', filename='images/dashboard_o.svg') }}">
         <small><strong></strong></small>
       </a>
     </div>
@@ -31,7 +31,7 @@
         <h5 class="mb-1">Lista de Utilizadores</h5>
       </div>
       <br>
-      <p class="mb-1"></p>
+      <img width="75" src="{{ url_for('static', filename='images/multiple-users-silhouette.svg') }}">
       <small><strong></strong></small>
     </a>
     </div>
@@ -41,18 +41,20 @@
           <h5 class="mb-1">Lista de Bookings</h5>
         </div>
         <br>
-        <p class="mb-1"></p>
+        <img width="75" src="{{ url_for('static', filename='images/open-book.svg') }}">
         <small><strong></strong></small>
       </a>
     </div>
     <div class="col-md-3">
-      <a href="{{ url_for('admin_services_list') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+      <a href="{{ url_for('admin_messages') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Lista de Servicos</h5>
+          <h5 class="mb-1">Mensagens</h5>
         </div>
         <br>
-        <p class="mb-1"></p>
-        <small><strong></strong></small>
+        <img width="75" src="{{ url_for('static', filename='images/message.svg') }}">
+        <br>
+        <span class="badge badge-success">{{ current_user.get_total_unread_messages_to_user() }} mensagens novas</span>
+
       </a>
     </div>
   </div>
@@ -65,7 +67,7 @@
           <h5 class="mb-1">Lista de Cleaners e Gerentes</h5>
         </div>
         <br>
-        <p class="mb-1"></p>
+        <img width="75" src="{{ url_for('static', filename='images/maid.svg') }}">
         <small><strong></strong></small>
       </a>
     </div>
@@ -75,7 +77,7 @@
           <h5 class="mb-1">Lista de Administradores</h5>
         </div>
         <br>
-        <p class="mb-1"></p>
+        <img width="75" src="{{ url_for('static', filename='images/multiple-users-silhouette-admin.svg') }}">
         <small><strong></strong></small>
       </a>
     </div>
@@ -85,7 +87,7 @@
           <h5 class="mb-1">Actividade Recente</h5>
         </div>
         <br>
-        <p class="mb-1"></p>
+        <img width="75" src="{{ url_for('static', filename='images/list-activity.svg') }}">
         <small><strong> </strong></small>
       </a>
     </div>
@@ -95,11 +97,16 @@
           <h5 class="mb-1">Relatorios</h5>
         </div>
         <br>
-        <p class="mb-1"></p>
+        <img width="75" src="{{ url_for('static', filename='images/analytics.svg') }}">
         <small><strong> </strong></small>
       </a>
     </div>
+    <br>
   </div>
+  <br>
+  <br>
+  <h4>Mais</h4>
+  <h5><a href="{{ url_for('admin_services_list') }}">Lista de Servicos</a></h5>
 </div>
 {% endblock %}
 

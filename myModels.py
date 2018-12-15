@@ -140,17 +140,17 @@ class Booking(db.Model):
   def get_booking_user(self):
     return User.query.filter_by(id=self.user_id).first()
 
-  def get_booking_notes(self): # admin staff's notes
+  def get_booking_notes(self):
     return BookingNote.query.filter_by(booking_id=self.id).order_by(BookingNote.created_on.desc()).all()
+
+  def get_booking_total_notes(self):
+    return len(BookingNote.query.filter_by(booking_id=self.id).all())
 
   def get_booking_service(self):
     return Service.query.filter_by(id=self.service_id).first()
 
   def get_assignable_staff(self):
     return Cleaner.query.filter_by(available=True).all()
-
-  def get_service(self):
-    return Service.query.filter_by(id=self.service_id).first()
 
 
 

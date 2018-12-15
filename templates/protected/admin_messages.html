@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+
+  <div class="row" style="padding: 0;">
+    <div class="col-md">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data e Hora</th>
+            <th>De</th>
+            <th>Lida</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for message in messages_array %}
+            <tr>
+              <td>{{ message.id }}</td>
+              <td>{{ moment(message.timestamp).calendar() }}</td>
+              <td>{{ message.get_message_sender().name }}</td>
+              <td>{{ message.read }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

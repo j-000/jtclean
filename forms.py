@@ -57,8 +57,8 @@ class BookingUpdateForm(FlaskForm):
     service = SelectField('Servico')
     amount_paid = DecimalField('Nova Quantia')
     completed = BooleanField('Completo')
-    cleaner = StringField('Empregado/a')
-    supervisor = StringField('Supervisor/a')
+    cleaner = SelectField('Empregado/a', coerce=int)
+    supervisor = SelectField('Supervisor/a', coerce=int)
 
 
 

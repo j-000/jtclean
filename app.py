@@ -152,6 +152,16 @@ def admin_dashboard():
   return render_template('protected/admin_dashboard.html', bookings_stats=bookings_stats)
 
 
+@app.route('/admin/messages')
+@login_required
+def admin_messages():
+  admin_id = User.query.filter_by(name='Admin').first().id
+  messages_array = Message.query.filter_by(to_user_id=admin_id).order_by(Message.timestamp.desc()).all()
+
+  return render_template('protected/admin_messages.html', messages_array=messages_array)
+
+
+
 @app.route('/admin/users_list')
 @login_required
 def admin_users_list():
@@ -246,7 +256,13 @@ def admin_booking(booking_id):
     form = BookingNotesForm()
     form2 = BookingUpdateForm()
     services_array = Service.query.filter_by(active=True).all()
+    job_cleaner_id = JobRole.query.filter_by(name='Cleaner').first().id
+    cleaners = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_cleaner_id,available=True).all()]
+    job_supervisors_id = JobRole.query.filter_by(name='Supervisor').first().id
+    supervisors = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_supervisors_id,available=True).all()]
     form2.service.choices = [(i.id, i.name) for i in services_array]
+    form2.cleaner.choices = cleaners
+    form2.supervisor.choices = supervisors
 
     if request.method == 'POST' and form.validate_on_submit():
       if add_booking_note(current_user.id, booking_id, form.text.data):
