@@ -42,7 +42,9 @@
         </div>
         <br>
         <img width="75" src="{{ url_for('static', filename='images/open-book.svg') }}">
-        <small><strong></strong></small>
+        <br>
+        <br>
+        <span class="badge badge-danger">{{ current_user._ADMIN_get_total_bookings() }} incompletos</span>
       </a>
     </div>
     <div class="col-md-3">
@@ -53,8 +55,8 @@
         <br>
         <img width="75" src="{{ url_for('static', filename='images/message.svg') }}">
         <br>
+        <br>
         <span class="badge badge-success">{{ current_user.get_total_unread_messages_to_user() }} mensagens novas</span>
-
       </a>
     </div>
   </div>

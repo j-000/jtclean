@@ -14,10 +14,14 @@
       {% endif %}
     {% endwith %}
     <!-- END FLASH MESSAGES -->
+  <a href="#"><h4>Quer falar com um assistente?</h4></a>
+  <br>
+  <br>
   <div class="row" style="padding: 0;">
-    <div class="col-md">
+    <div class="col-md-6">
       <h4>Caixa de entrada</h4>
       <br>
+      {% if current_user.get_total_messages_to_user() > 0 %}
       <ul class="list-group">
         {% for message in current_user.get_messages_to_user() %}
         <a href="{{ url_for('open_message', message_id=message.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
@@ -33,27 +37,34 @@
         </a>
         {% endfor %}
       </ul>
+      {% else %}
+        <ul class="list-group">
+          <p class="mb-1 text-muted"> Sem mensagens </p>
+        </ul>
+      {% endif %}
     </div>
-  </div>
-  <br>
-  <hr>
-  <br>
-  <div class="row" style="padding: 0;">
-    <div class="col-md">
+    <div class="col-md-6">
       <h4>Enviadas</h4>
       <br>
-      <ul class="list-group">
-        {% for message in current_user.get_messages_from_user() %}
-        <a href="{{ url_for('open_message', message_id=message.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Para: {{ message.get_message_receiver().name }}</h5>
-            <small>{{ moment(message.timestamp).calendar() }}</small>
-          </div>
-          <p class="mb-1"> {{ message.message }} </p>
-        </a>
-        {% endfor %}
-      </ul>
+      {% if current_user.get_total_messages_from_user() > 0 %}
+        <ul class="list-group">
+          {% for message in current_user.get_messages_from_user() %}
+          <a href="{{ url_for('open_message', message_id=message.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">Para: {{ message.get_message_receiver().name }}</h5>
+              <small>{{ moment(message.timestamp).calendar() }}</small>
+            </div>
+            <p class="mb-1"> {{ message.message }} </p>
+          </a>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <ul class="list-group">
+          <p class="mb-1 text-muted"> Sem mensagens </p>
+        </ul>
+      {% endif %}
     </div>
   </div>
+
 </div>
 {% endblock %}

@@ -34,6 +34,12 @@ class User(db.Model, UserMixin):
   role = db.Column(db.Integer, default=1)
   premium = db.Column(db.Boolean(), default=False)
 
+  def _ADMIN_get_total_bookings(self):
+    if self.is_admin():
+      return len(Booking.query.filter_by(completed=False).all())
+    else:
+      return None
+
   def get_user_role(self):
     return Role.query.filter_by(id=self.role).first()
 
@@ -68,6 +74,9 @@ class User(db.Model, UserMixin):
 
   def get_total_messages_to_user(self):
     return len(Message.query.filter_by(to_user_id=self.id).all())
+
+  def get_total_messages_from_user(self):
+    return len(Message.query.filter_by(from_user_id=self.id).all())
 
   def get_total_unread_messages_to_user(self):
     return len(Message.query.filter_by(to_user_id=self.id, read=False).all())
