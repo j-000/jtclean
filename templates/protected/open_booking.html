@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 85%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+  <div class="row" style="padding: 0;">
+    <div class="card col-sm  bg-success border border-success text-white"><strong>Aguardando confirmacao</strong></div>
+    <div class="card col-sm opacity bg-secondary border border-secondary">Confirmado</div>
+    <div class="card col-sm opacity bg-secondary border border-secondary">Concluido</div>
+    <div class="card col-sm opacity bg-secondary border border-secondary">Revisao</div>
+  </div>
+  <br>
+  <br>
+  <div class="row" style="padding: 0;">
+
+    <div class="col-md-6">
+      <h4>A sua reseva</h4>
+      <br>
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">JT-{{ booking.id }} | {{ booking.get_booking_service().name }}</h4>
+          <h6 class="card-subtitle mb-2 text-muted">Agendado {{ moment(booking.timestamp).calendar() }}</h6>
+          <p class="card-text">
+            <div class="row" style="padding: 0;">
+              <div class="col-sm"><strong>Estado</strong></div>
+              <div class="col-sm">
+                {% if booking.confirmed %}
+                <span class='badge badge-success'>Confirmado</span>
+                {% else %}
+                <span class='badge badge-warning'>Aguardando Confirmacao</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="row" style="padding: 0;">
+              <div class="col-sm"><strong>Tipo de Casa</strong></div>
+              <div class="col-sm">{{ booking.property_type }}</div>
+            </div>
+            <div class="row" style="padding: 0;">
+              <div class="col-sm"><strong>Datas</strong></div>
+              <div class="col-sm"><strong>De</strong> {{ booking.date_from }} <strong>a</strong> {{ booking.date_to }}</div>
+            </div>
+            <div class="row" style="padding: 0;">
+              <div class="col-sm"><strong>Hora de comeco</strong></div>
+              <div class="col-sm">{{ booking.start_time }}</div>
+            </div>
+            <div class="row" style="padding: 0;">
+              <div class="col-sm"><strong>Duracao</strong></div>
+              <div class="col-sm">{{ booking.duration }} horas</div>
+            </div>
+            <div class="row" style="padding: 0;">
+              <div class="col-sm"><strong>Quantia paga</strong></div>
+              <div class="col-sm">{{ booking.amount_paid }}</div>
+            </div>
+            <div class="row" style="padding: 0;">
+              <div class="col-sm"><strong>Comentario</strong></div>
+              <div class="col-sm font-italic">" {{ booking.comment }} "</div>
+            </div>
+          </p>
+          <a href="#!" class="card-link">Mudar a reserva</a>
+          <a href="#!" class="card-link">Cancelar</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h4>Comunique connosco</h4>
+      <br>
+      <div id='messagesContainer' class="card">
+        {% for message in current_user.get_all_messages_for_booking(booking.id) %}
+            <div class="list-group-item list-group-item-action flex-column align-items-start">
+              <div class="d-flex w-100 justify-content-between">
+                <h6>
+                  {% if message.get_message_sender().id == current_user.id %}
+                  <span class="badge badge-info">Eu</span>
+                  {% else %}
+                  <span class="badge badge-danger">{{ message.get_message_sender().name }}</span>
+                  {% endif %}
+                </h6>
+                <small>{{ moment(message.timestamp).calendar() }}</small>
+              </div>
+              <p class="mb-1">{{ message.message }}</p>
+            </div>
+        {% endfor %}
+      </div>
+      {% if not booking.completed %}
+      <form action="{{ url_for('messages') }}" method="POST">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.booking_id, value=booking.id) }}
+        {{ wtf.form_field(form.message) }}
+        <input type="submit" class="btn btn-default btn-md" value="Enviar">
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extrajs %}
+<script type="text/javascript">
+  $('#messageBookingIdField').hide()
+  $('label[for=messageBookingIdField]').hide()
+</script>
+{% endblock %}

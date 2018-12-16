@@ -17,20 +17,17 @@
   <br>
   <div class="row" style="padding: 0;">
     <div class="col-md-4">
-      <a href="{{ url_for('messages') }}" class=" list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+      <a href="#" class=" list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Mensagens</h5>
-          {% if current_user.get_total_unread_messages_to_user() > 0 %}
-            <small class="badge badge-success">Nova Mensagem!</small>
-          {% endif %}
+          <h5 class="mb-1">Something</h5>
         </div>
         <br>
-        <p class="mb-1">{{ current_user.get_total_unread_messages_to_user() }} / {{ current_user.get_total_messages_to_user() }} mensagens</p>
+        <p class="mb-1"></p>
         <small><strong>Clique para abrir</strong></small>
       </a>
     </div>
     <div class="col-md-4">
-      <a href="{{ url_for('book') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+      <a href="{{ url_for('new_booking') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Servicos</h5>
           {% if current_user.get_total_bookings() > 0 %}

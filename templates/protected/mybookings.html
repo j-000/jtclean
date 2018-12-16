@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block body %}
+<div class="container" style="text-align: center; padding: 50px 0; width: 85%;">
+  <!-- BEGIN FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <!-- END FLASH MESSAGES -->
+  <div class="row" style="padding: 0;">
+    <div class="col-4">
+      <h4>Aguardando confirmacao</h4>
+      <br>
+      {% for booking in current_user.get_user_bookings() %}
+        {% if not booking.confirmed %}
+        <div class="list-group">
+          <a href="{{ url_for('open_booking', booking_id=booking.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">JT-{{ booking.id }} {{ booking.get_booking_service().name }}</h5>
+              <small>{{ moment( booking.timestamp ).calendar() }}</small>
+            </div>
+            <p class="mb-1">A sua reserva encontra-se em lista de espera para ser aprovada. <br> Nao se preocupe, sera notificado.</p>
+            <small>Mudou de ideias? Ainda esta a tempo.</small>
+          </a>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="col-4">
+      <h4>Confirmados</h4>
+      <br>
+      {% for booking in current_user.get_user_bookings() %}
+        {% if booking.confirmed %}
+        <div class="list-group">
+          <a href="{{ url_for('open_booking', booking_id=booking.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">JT-{{ booking.id }} {{ booking.get_booking_service().name }}</h5>
+              <small>{{ moment( booking.timestamp ).calendar() }}</small>
+            </div>
+            <p class="mb-1">A sua reserva sera aprovada dentro de momentos. Sera notificado assim que um dos nossos assistentes reveja a reserva.</p>
+            <small>Mudou de ideias?  Ainda esta a tempo.</small>
+          </a>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="col-4">
+      <h4>Arquivados</h4>
+      <br>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+

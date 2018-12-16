@@ -72,6 +72,10 @@ class User(db.Model, UserMixin):
   def get_messages_to_user(self):
     return Message.query.filter_by(to_user_id=self.id).order_by(Message.timestamp.desc()).all()
 
+  def get_all_messages_for_booking(self, booking_id):
+    messages = Message.query.filter_by(booking_id=booking_id).order_by(Message.timestamp.asc()).all()
+    return messages
+
   def get_total_messages_to_user(self):
     return len(Message.query.filter_by(to_user_id=self.id).all())
 
@@ -83,7 +87,6 @@ class User(db.Model, UserMixin):
 
   def get_staffMemeber_details(self):
     return StaffMember.query.filter_by(user_id=self.id).all()
-
 
 
 
@@ -102,6 +105,7 @@ class PaymentMethod(db.Model):
 class StaffMember(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer)
+  name = db.Column(db.String(20))
   jobRole = db.Column(db.Integer, default=1)
   rate = db.Column(db.Float(), default=5)
   available = db.Column(db.Boolean(), default=True)
@@ -142,6 +146,7 @@ class Booking(db.Model):
   duration = db.Column(db.Integer)
   amount_paid = db.Column(db.Float())
   comment = db.Column(db.Text()) # customer's coment
+  confirmed = db.Column(db.Boolean(), default=False)
   completed = db.Column(db.Boolean(), default=False)
   cleaner = db.Column(db.String(10), nullable=True, default=None)
   supervisor = db.Column(db.String(10), nullable=True, default=None)
@@ -199,6 +204,7 @@ class Message(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   from_user_id = db.Column(db.Integer)
   to_user_id = db.Column(db.Integer)
+  booking_id = db.Column(db.Integer)
   timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
   message = db.Column(db.Text())
   read = db.Column(db.Boolean(), default=False)
@@ -208,6 +214,9 @@ class Message(db.Model):
 
   def get_message_receiver(self):
     return User.query.filter_by(id=self.to_user_id).first()
+
+
+
 
 
 

@@ -88,228 +88,23 @@ def profile():
 
 
 
+@app.route('/profile/services')
+def new_booking():
+  return render_template('protected/new_booking.html')
 
-
-
-
-
-
-
-# Admin route for Admin users
-@app.route('/admin', methods=['GET'])
-@login_required
-def admin():
-  ADMIN = Role.query.filter_by(name='Admin').first().id
-  if current_user.role == ADMIN:
-    return render_template('protected/admin.html')
-  flash('Area restrista para administradores.', 'danger')
-  return redirect(url_for('profile'))
-
-
-
-
-# Admin route to edit services
-@app.route('/admin/admin_services_list/service/<service_id>', methods=['GET'])
-@login_required
-def admin_service(service_id):
-  ADMIN = Role.query.filter_by(name='Admin').first().id
-  if current_user.role == ADMIN:
-    return render_template('protected/admin.html')
-  flash('Area restrista para administradores.', 'danger')
-  return redirect(url_for('profile'))
-
-
-
-
-
-
-
-@app.route('/admin/dashboard')
-@login_required
-def admin_dashboard():
-  #  REFACTOR THIS OUT TO AN API
-  bookings_array = Booking.query.all()
-  bookings_stats = {
-    'total': len(bookings_array),
-    'today':0,
-    'week':0,
-    'month':0,
-  }
-  _today = datetime.datetime.utcnow().date()
-  _fiveDaysAgo = _today - timedelta(7)
-  _thirtyDaysAgo = _today - timedelta(30)
-
-  for booking in bookings_array:
-    booking_date = booking.timestamp.date()
-    if booking_date == _today:
-      bookings_stats['today'] += 1
-    if booking_date >= _fiveDaysAgo and booking_date <= _today:
-      bookings_stats['week'] += 1
-    if booking_date >= _thirtyDaysAgo and booking_date <= _today:
-      bookings_stats['month'] += 1
-  # REFACTOR END
-
-  return render_template('protected/admin_dashboard.html', bookings_stats=bookings_stats)
-
-
-@app.route('/admin/messages')
-@login_required
-def admin_messages():
-  admin_id = User.query.filter_by(name='Admin').first().id
-  messages_array = Message.query.filter_by(to_user_id=admin_id).order_by(Message.timestamp.desc()).all()
-
-  return render_template('protected/admin_messages.html', messages_array=messages_array)
-
-
-
-@app.route('/admin/users_list')
-@login_required
-def admin_users_list():
-  users_array = User.query.all()
-  form = SearchForUserForm()
-
-  return render_template('protected/admin_users_list.html', users_array=users_array, form=form)
-
-
-@app.route('/admin/admin_bookings_list')
-@login_required
-def admin_bookings_list():
-  bookings_array = Booking.query.all()
-  return render_template('protected/admin_bookings_list.html', bookings_array=bookings_array)
-
-
-
-@app.route('/admin/admin_services_list', methods=['GET', 'POST'])
-@login_required
-def admin_services_list():
-  ADMIN = Role.query.filter_by(name='Admin').first().id
-  if current_user.role == ADMIN:
-    form = ServiceForm()
-    services_array = Service.query.all()
-
-    if request.method == 'POST' and form.validate_on_submit():
-      new_service = Service(name=form.name.data,
-                                    description=form.description.data,
-                                    price=form.price.data)
-      db.session.add(new_service)
-      db.session.commit()
-      flash('Servico adicionado com sucesso', 'success')
-      return redirect(url_for('admin_services_list'))
-    else:
-      return render_template('protected/admin_services_list.html', services_array=services_array, form=form)
-  else:
-    flash('Area restrista para administradores.', 'danger')
-    return redirect(url_for('profile'))
-
-
-
-# Admin route for Admins to modify users
-@app.route('/admin/user/<user_id>', methods=['GET', 'POST'])
-@login_required
-def admin_user(user_id):
-  ADMIN = Role.query.filter_by(name='Admin').first().id
-  if current_user.role is ADMIN:
-    user = User.query.filter_by(id=user_id).first()
-
-    if user:
-      form = UpdateUserAccount(obj=user)
-      roleChoices = [(i.id, i.name) for i in Role.query.all()]
-      form.role.choices = roleChoices
-
-      if request.method == 'POST' and form.validate_on_submit():
-        user.role = form.role.data
-        user.premium = form.premium.data
-        db.session.commit()
-
-        flash('User modificado com successo', 'success')
-        return redirect(url_for('admin_user', user_id=user_id))
-
-      return render_template('protected/admin_user.html', user=user, form=form)
-
-    else:
-      flash('Esse user nao existe.', 'danger')
-      return redirect(url_for('admin'))
-
-  else:
-    flash('Area restrista para administradores.', 'danger')
-    return redirect(url_for('profile'))
-
-
-
-
-def add_booking_note(user_id, booking_id, text):
-  try:
-    new_note = BookingNote(user_id=user_id, booking_id=booking_id, text=text)
-    db.session.add(new_note)
-    db.session.commit()
-    return True
-  except Exception as e:
-    return False
-
-
-# Admin route for Admins to modify bookings
-@app.route('/admin/booking/<booking_id>', methods=['GET', 'POST'])
-@login_required
-def admin_booking(booking_id):
-  ADMIN = Role.query.filter_by(name='Admin').first().id
-  if current_user.role == ADMIN:
-    form = BookingNotesForm()
-    form2 = BookingUpdateForm()
-    services_array = Service.query.filter_by(active=True).all()
-    job_cleaner_id = JobRole.query.filter_by(name='Cleaner').first().id
-    cleaners = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_cleaner_id,available=True).all()]
-    job_supervisors_id = JobRole.query.filter_by(name='Supervisor').first().id
-    supervisors = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_supervisors_id,available=True).all()]
-    form2.service.choices = [(i.id, i.name) for i in services_array]
-    form2.cleaner.choices = cleaners
-    form2.supervisor.choices = supervisors
-
-    if request.method == 'POST' and form.validate_on_submit():
-      if add_booking_note(current_user.id, booking_id, form.text.data):
-        flash('Nota adicionada com sucesso.', 'info')
-        return redirect(url_for('admin_booking', booking_id=booking_id))
-
-    if request.method == 'POST' and form2.validate_on_submit():
-      if form2.service.data == None or form2.amount_paid.data == None:
-        flash('Erro - Corrija o servico ou o valor do servico.', 'danger')
-        return redirect(url_for('admin_booking', booking_id=booking_id))
-      else:
-        updated_booking = Booking.query.filter_by(id=booking_id).first()
-        updated_booking.service = form2.service.data
-        updated_booking.amount_paid = form2.amount_paid.data
-        updated_booking.completed = form2.completed.data
-        updated_booking.cleaner = form2.cleaner.data
-        updated_booking.supervisor = form2.supervisor.data
-        db.session.commit()
-
-        flash('Booking modificado com sucesso.', 'success')
-        return redirect(url_for('admin_booking', booking_id=booking_id))
-
-    booking = Booking.query.filter_by(id=booking_id).first()
-    if booking:
-      return render_template('protected/admin_booking.html', booking=booking, form=form, form2=form2)
-    else:
-      flash('Esse booking nao e valido.', 'danger')
-      return redirect(url_for('admin'))
-
-  flash('Area restrista para administradores.', 'danger')
-  return redirect(url_for('profile'))
 
 
 
 # New booking route
-@app.route('/book', methods=['GET','POST'])
+@app.route('/profile/services/book', methods=['GET','POST'])
 @login_required
 def book():
   available_services = Service.query.filter_by(active=True).all()
   bookingForm = BookingForm()
   choices = [(0,'Escolha um servico')] + [(i.id, i.name) for i in available_services]
   bookingForm.service.choices = choices
-
   if request.method == 'POST' and bookingForm.validate_on_submit():
-
     service_price = Service.query.filter_by(id=bookingForm.service.data).first().price
-
     new_booking = Booking(
                   user_id = current_user.id,
                   property_type = bookingForm.propertyType.data,
@@ -320,13 +115,43 @@ def book():
                   duration=bookingForm.duration.data,
                   amount_paid=service_price,
                   comment=bookingForm.comments.data)
-
     db.session.add(new_booking)
     db.session.commit()
     flash('A sua limpeza foi agendada com sucesso!', 'success')
-    return redirect(url_for('profile'))
-
+    return redirect(url_for('my_bookings'))
   return render_template('protected/book.html', form=bookingForm)
+
+
+
+@app.route('/profile/services/my_bookings')
+def my_bookings():
+  return render_template('protected/mybookings.html')
+
+
+@app.route('/profile/services/my_bookings/<booking_id>')
+def open_booking(booking_id):
+  booking = Booking.query.filter_by(id=booking_id).first()
+  if booking:
+    messageForm = SendMessageForm()
+    # booking_id_choices = [(i.id, i.id) for i in current_user.get_user_bookings()]
+    booking_id_choices = [(booking.id, booking.id)]
+    messageForm.booking_id.choices = booking_id_choices
+
+    if request.method == 'POST' and messageForm.validate_on_submit():
+      new_message = Message(
+                    from_user_id = current_user.id,
+                    booking_id = messageForm.booking_id.data,
+                    message = messageForm.message.data)
+
+      db.session.add(new_message)
+      db.session.commit()
+      flash('Mensagem enviada com sucesso.', 'success')
+      return redirect(url_for('open_booking', booking_id=booking_id))
+
+    return render_template('protected/open_booking.html', booking=booking, form=messageForm)
+  else:
+    flash('Esse booking nao existe.','danger')
+    return redirect(url_for('my_bookings'))
 
 
 
@@ -345,50 +170,27 @@ def api_services(service_id):
 
 
 
-# Dashboard route
-@app.route('/profile/dashboard', methods=['GET','POST'])
-@login_required
-def dashboard():
-  return render_template('protected/dashboard.html')
-
-
-
 # Messages route
 @app.route('/profile/messages', methods=['GET','POST'])
 @login_required
 def messages():
   messageForm = SendMessageForm()
+  booking_id_choices = [(i.id, i.id) for i in current_user.get_user_bookings()]
+  messageForm.booking_id.choices = booking_id_choices
   if request.method == 'POST' and messageForm.validate_on_submit():
+
     new_message = Message(
                   from_user_id = current_user.id,
-                  to_user_id = messageForm.to_user.data,
-                  message = messageForm.message.data
-      )
+                  booking_id = messageForm.booking_id.data,
+                  message = messageForm.message.data)
+
     db.session.add(new_message)
     db.session.commit()
     flash('Mensagem enviada com sucesso.', 'success')
-    return redirect(url_for('messages'))
+    return redirect(url_for('open_booking', booking_id=messageForm.booking_id.data))
 
   return render_template('protected/messages.html', form=messageForm)
 
-
-
-# Open message route
-@app.route('/profile/messages/<message_id>', methods=['GET'])
-@login_required
-def open_message(message_id):
-  message = Message.query.filter_by(id=message_id).first()
-  if message:
-    if message.to_user_id == current_user.id or message.from_user_id == current_user.id:
-      messageForm = SendMessageForm()
-
-      if not message.read:
-        message.read = True
-        db.session.commit()
-
-      return render_template('protected/open_message.html', message=message, form=messageForm)
-  flash('Essa mensagem nao existe.', 'danger')
-  return redirect(url_for('messages'))
 
 
 
@@ -416,12 +218,255 @@ def profile_settings():
 
 
 
+# Dashboard route
+@app.route('/profile/dashboard', methods=['GET','POST'])
+@login_required
+def dashboard():
+  return render_template('protected/dashboard.html')
+
+
 # Logout route
 @app.route('/logout')
 @login_required
 def logout():
   logout_user();
   return redirect(url_for('index'))
+
+
+
+##################################ADMIN ROUTES##################################
+
+# Admin route for Admin users
+@app.route('/admin', methods=['GET'])
+@login_required
+def admin():
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    return render_template('protected/admin/admin.html')
+  flash('Area restrista para administradores.', 'danger')
+  return redirect(url_for('profile'))
+
+
+
+
+# Admin route to edit services
+@app.route('/admin/admin_services_list/service/<service_id>', methods=['GET'])
+@login_required
+def admin_service(service_id):
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    return render_template('protected/admin/admin.html')
+  flash('Area restrista para administradores.', 'danger')
+  return redirect(url_for('profile'))
+
+
+@app.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    #  REFACTOR THIS OUT TO AN API
+    bookings_array = Booking.query.all()
+    bookings_stats = {
+      'total': len(bookings_array),
+      'today':0,
+      'week':0,
+      'month':0,
+    }
+    _today = datetime.datetime.utcnow().date()
+    _fiveDaysAgo = _today - timedelta(7)
+    _thirtyDaysAgo = _today - timedelta(30)
+
+    for booking in bookings_array:
+      booking_date = booking.timestamp.date()
+      if booking_date == _today:
+        bookings_stats['today'] += 1
+      if booking_date >= _fiveDaysAgo and booking_date <= _today:
+        bookings_stats['week'] += 1
+      if booking_date >= _thirtyDaysAgo and booking_date <= _today:
+        bookings_stats['month'] += 1
+    # REFACTOR END
+    return render_template('protected/admin/admin_dashboard.html', bookings_stats=bookings_stats)
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
+
+
+@app.route('/admin/messages')
+@login_required
+def admin_messages():
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    admin_id = User.query.filter_by(name='Admin').first().id
+    messages_array = Message.query.filter_by(to_user_id=admin_id).order_by(Message.timestamp.desc()).all()
+    return render_template('protected/admin/admin_messages.html', messages_array=messages_array)
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
+
+
+@app.route('/admin/users_list')
+@login_required
+def admin_users_list():
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    users_array = User.query.all()
+    form = SearchForUserForm()
+    return render_template('protected/admin/admin_users_list.html', users_array=users_array, form=form)
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
+
+
+@app.route('/admin/admin_bookings_list')
+@login_required
+def admin_bookings_list():
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+
+    bookings_array = Booking.query.all()
+    return render_template('protected/admin/admin_bookings_list.html', bookings_array=  bookings_array)
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
+
+
+
+@app.route('/admin/admin_services_list', methods=['GET', 'POST'])
+@login_required
+def admin_services_list():
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    form = ServiceForm()
+    services_array = Service.query.all()
+
+    if request.method == 'POST' and form.validate_on_submit():
+      new_service = Service(name=form.name.data,
+                                    description=form.description.data,
+                                    price=form.price.data)
+      db.session.add(new_service)
+      db.session.commit()
+      flash('Servico adicionado com sucesso', 'success')
+      return redirect(url_for('admin_services_list'))
+    else:
+      return render_template('protected/admin/admin_services_list.html', services_array=services_array, form=form)
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
+
+
+
+# Admin route for Admins to modify users
+@app.route('/admin/user/<user_id>', methods=['GET', 'POST'])
+@login_required
+def admin_user(user_id):
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role is ADMIN:
+    user = User.query.filter_by(id=user_id).first()
+
+    if user:
+      form = UpdateUserAccount(obj=user)
+      roleChoices = [(i.id, i.name) for i in Role.query.all()]
+      form.role.choices = roleChoices
+
+      if request.method == 'POST' and form.validate_on_submit():
+        user.role = form.role.data
+        user.premium = form.premium.data
+        db.session.commit()
+
+        flash('User modificado com successo', 'success')
+        return redirect(url_for('admin_user', user_id=user_id))
+
+      return render_template('protected/admin/admin_user.html', user=user, form=form)
+
+    else:
+      flash('Esse user nao existe.', 'danger')
+      return redirect(url_for('admin'))
+  else:
+    flash('Area restrista para administradores.', 'danger')
+    return redirect(url_for('profile'))
+
+
+
+
+def add_booking_note(user_id, booking_id, text):
+  try:
+    new_note = BookingNote(user_id=user_id, booking_id=booking_id, text=text)
+    db.session.add(new_note)
+    db.session.commit()
+    return True
+  except Exception as e:
+    return False
+
+
+# Admin route for Admins to modify bookings
+@app.route('/admin/booking/<booking_id>', methods=['GET', 'POST'])
+@login_required
+def admin_booking(booking_id):
+  ADMIN = Role.query.filter_by(name='Admin').first().id
+  if current_user.role == ADMIN:
+    booking = Booking.query.filter_by(id=booking_id).first()
+    if booking:
+      # Handle Booking Notes
+      form = BookingNotesForm()
+      if request.method == 'POST' and form.validate_on_submit():
+        if add_booking_note(current_user.id, booking_id, form.text.data):
+          flash('Nota adicionada com sucesso.', 'info')
+          return redirect(url_for('admin_booking', booking_id=booking_id))
+
+
+      # Handle Changes to Booking
+      form2 = BookingUpdateForm()
+      services_array = Service.query.filter_by(active=True).all()
+      job_cleaner_id = JobRole.query.filter_by(name='Cleaner').first().id
+      cleaners = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_cleaner_id, available=True).all()]
+      job_supervisors_id = JobRole.query.filter_by(name='Supervisor').first().id
+      supervisors = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_supervisors_id,available=True).all()]
+      form2.service.choices = [(i.id, i.name) for i in services_array]
+      form2.cleaner.choices = cleaners
+      form2.supervisor.choices = supervisors
+
+      if request.method == 'POST' and form2.validate_on_submit():
+        if form2.service.data == None or form2.amount_paid.data == None:
+          flash('Erro - Corrija o servico ou o valor do servico.', 'danger')
+          return redirect(url_for('admin_booking', booking_id=booking_id))
+        else:
+          updated_booking = Booking.query.filter_by(id=booking_id).first()
+          updated_booking.service = form2.service.data
+          updated_booking.amount_paid = form2.amount_paid.data
+          updated_booking.completed = form2.confirmed.data
+          updated_booking.completed = form2.completed.data
+          updated_booking.cleaner = form2.cleaner.data
+          updated_booking.supervisor = form2.supervisor.data
+          db.session.commit()
+
+          flash('Booking modificado com sucesso.', 'success')
+          return redirect(url_for('admin_booking', booking_id=booking_id))
+
+
+      # Handle Chat
+      form3 = SendMessageForm()
+      form3.booking_id.choices = [(booking.id,booking.id)]
+      if request.method == 'POST' and form3.validate_on_submit():
+        new_message = Message(
+                    from_user_id = current_user.id,
+                    booking_id = form3.booking_id.data,
+                    message = form3.message.data)
+
+        db.session.add(new_message)
+        db.session.commit()
+        flash('Mensagem enviada com sucesso.', 'success')
+        return redirect(url_for('admin_booking', booking_id=booking_id))
+
+      return render_template('protected/admin/admin_booking.html', booking=booking, form=form, form2=form2, form3=form3)
+    else:
+      flash('Esse booking nao e valido.', 'danger')
+      return redirect(url_for('admin'))
+
+  flash('Area restrista para administradores.', 'danger')
+  return redirect(url_for('profile'))
+
+
 
 
 

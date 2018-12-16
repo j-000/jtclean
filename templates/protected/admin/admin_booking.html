@@ -15,8 +15,9 @@
   <!-- END FLASH MESSAGES -->
 
   <div class="row" style="padding: 0;">
-    <div class="col-md">
+    <div class="col-md-6">
       <h4>Booking</h4>
+      <br>
       <div class="card">
         <div class="card-body">
           {% if booking.completed %}
@@ -36,15 +37,15 @@
       <br>
       <h4>Modificar o Booking</h4>
       <br>
-
       {% if booking.completed %}
-      <p>Can't change it</p>
+        <p>Can't change it</p>
       {% else %}
       <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
         {{ form2.hidden_tag() }}
         {{ wtf.form_field(form2.completed) }}
         {{ wtf.form_field(form2.service) }}
         {{ wtf.form_field(form2.amount_paid, value=booking.amount_paid) }}
+        {{ wtf.form_field(form2.confirmed, value=booking.confirmed) }}
         {{ wtf.form_field(form2.cleaner, value=booking.cleaner) }}
         {{ wtf.form_field(form2.supervisor, value=booking.supervisor) }}
         <input type="submit" class="btn btn-default btn-md" value="Modificar">
@@ -52,7 +53,33 @@
       {% endif %}
 
     </div>
-    <div class="col-md">
+    <div class="col-md-6">
+      <h4>Chat com o cliente</h4>
+      <br>
+      <div id='messagesContainer' class="card">
+        {% for message in current_user.get_all_messages_for_booking(booking.id) %}
+            <div class="list-group-item list-group-item-action flex-column align-items-start">
+              <div class="d-flex w-100 justify-content-between">
+                <h6>
+                  {% if message.get_message_sender().id == current_user.id %}
+                  <span class="badge badge-info">Eu</span>
+                  {% else %}
+                  <span class="badge badge-danger">{{ message.get_message_sender().name }}</span>
+                  {% endif %}
+                </h6>
+                <small>{{ moment(message.timestamp).calendar() }}</small>
+              </div>
+              <p class="mb-1">{{ message.message }}</p>
+            </div>
+        {% endfor %}
+      </div>
+      <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form3.booking_id, value=booking.id) }}
+        {{ wtf.form_field(form3.message) }}
+        <input type="submit" class="btn btn-default btn-md" value="Enviar">
+      </form>
+
       <h4>Notas</h4>
         <div class="list-group">
           {% for note in booking.get_booking_notes() %}
@@ -76,4 +103,10 @@
       </div>
     </div>
 </div>
+{% endblock %}
+{% block extrajs %}
+<script type="text/javascript">
+  $('#messageBookingIdField').hide()
+  $('label[for=messageBookingIdField]').hide()
+</script>
 {% endblock %}

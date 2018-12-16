@@ -7,6 +7,15 @@ Custom Styles. Bootstrap Styles are default'
     background-color: rgba(255,193,7, 0.6)!important;
 }
 
+#messagesContainer{
+    height: 300px!important;
+    overflow-y: scroll!important;
+}
+
+.opacity{
+    opacity: 0.45;
+}
+
 .loader {
   border: 16px solid #f3f3f3; /* Light grey */
   border-top: 16px solid #3498db; /* Blue */

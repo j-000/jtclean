@@ -56,6 +56,7 @@ class BookingNotesForm(FlaskForm):
 class BookingUpdateForm(FlaskForm):
     service = SelectField('Servico')
     amount_paid = DecimalField('Nova Quantia')
+    confirmed = BooleanField('Confirmado')
     completed = BooleanField('Completo')
     cleaner = SelectField('Empregado/a', coerce=int)
     supervisor = SelectField('Supervisor/a', coerce=int)
@@ -64,9 +65,8 @@ class BookingUpdateForm(FlaskForm):
 
 
 class SendMessageForm(FlaskForm):
-    to_user = SelectField('Para:', id='messageToUserField' , choices=[(0, 'Geral')], coerce=int, validators=[InputRequired()])
     message = TextAreaField('Mensagem:', validators=[InputRequired()])
-
+    booking_id = SelectField('Booking',id='messageBookingIdField', coerce=int, validators=[InputRequired()])
 
 
 class SearchForUserForm(FlaskForm):
