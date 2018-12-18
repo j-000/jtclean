@@ -54,7 +54,7 @@ class BookingNotesForm(FlaskForm):
 
 
 class BookingUpdateForm(FlaskForm):
-    service = SelectField('Servico')
+    service = SelectField('Servico', coerce=int)
     amount_paid = DecimalField('Nova Quantia')
     confirmed = BooleanField('Confirmado')
     completed = BooleanField('Completo')

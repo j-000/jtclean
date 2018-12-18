@@ -383,6 +383,7 @@ def admin_booking(booking_id):
   if current_user.is_admin():
     booking = Booking.query.filter_by(id=booking_id).first()
     if booking:
+
       # Handle Booking Notes
       form = BookingNotesForm()
 
@@ -467,29 +468,26 @@ def admin_booking_update(booking_id):
   form2.supervisor.choices = supervisors
 
   if current_user.is_admin():
-    if request.method == 'GET':
-      return redirect(url_for('admin_booking', booking_id=booking_id))
-    elif request.method == 'POST':
-      if form2.validate_on_submit():
-        print(form2)
-        escaped_booking_id = escape(booking_id)
 
-        updated_booking = Booking.query.filter_by(id=escaped_booking_id).first()
-        updated_booking.service = form2.service.data
-        updated_booking.amount_paid = form2.amount_paid.data
-        updated_booking.completed = form2.confirmed.data
-        updated_booking.completed = form2.completed.data
-        updated_booking.cleaner = form2.cleaner.data
-        updated_booking.supervisor = form2.supervisor.data
-        db.session.commit()
+    if request.method == 'POST' and form2.validate_on_submit():
+      escaped_booking_id = escape(booking_id)
 
-        flash('Booking modificado com sucesso.', 'success')
-        return redirect(url_for('admin_booking', booking_id=escaped_booking_id))
-      else:
-        flash('Reveja a modificacao do booking.','info')
-        return redirect(url_for('admin_booking', booking_id=booking_id))
+      updated_booking = Booking.query.filter_by(id=escaped_booking_id).first()
+      updated_booking.service = form2.service.data
+      updated_booking.amount_paid = form2.amount_paid.data
+      updated_booking.confirmed = form2.confirmed.data
+      updated_booking.completed = form2.completed.data
+      updated_booking.cleaner = form2.cleaner.data
+      updated_booking.supervisor = form2.supervisor.data
+      db.session.commit()
+
+      flash('Booking modificado com sucesso.', 'success')
+      return redirect(url_for('admin_booking', booking_id=escaped_booking_id))
     else:
-      return redirect(url_for('profile'))
+
+      flash('Reveja a modificacao do booking.','info')
+      return redirect(url_for('admin_booking', booking_id=booking_id))
+
   else:
     flash('Area restrista para administradores.','danger')
     return redirect(url_for('profile'))
