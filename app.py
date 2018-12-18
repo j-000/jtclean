@@ -385,14 +385,9 @@ def admin_booking(booking_id):
     if booking:
       # Handle Booking Notes
       form = BookingNotesForm()
-      if request.method == 'POST' and form.validate_on_submit():
-        if add_booking_note(current_user.id, booking_id, form.text.data):
-          flash('Nota adicionada com sucesso.', 'info')
-          return redirect(url_for('admin_booking', booking_id=booking_id))
-
 
       # Handle Changes to Booking
-      form2 = BookingUpdateForm()
+      form2 = BookingUpdateForm(obj=booking)
       services_array = Service.query.filter_by(active=True).all()
       job_cleaner_id = JobRole.query.filter_by(name='Cleaner').first().id
       cleaners = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_cleaner_id, available=True).all()]
@@ -402,37 +397,8 @@ def admin_booking(booking_id):
       form2.cleaner.choices = cleaners
       form2.supervisor.choices = supervisors
 
-      if request.method == 'POST' and form2.validate_on_submit():
-        if form2.service.data == None or form2.amount_paid.data == None:
-          flash('Erro - Corrija o servico ou o valor do servico.', 'danger')
-          return redirect(url_for('admin_booking', booking_id=booking_id))
-        else:
-          updated_booking = Booking.query.filter_by(id=booking_id).first()
-          updated_booking.service = form2.service.data
-          updated_booking.amount_paid = form2.amount_paid.data
-          updated_booking.completed = form2.confirmed.data
-          updated_booking.completed = form2.completed.data
-          updated_booking.cleaner = form2.cleaner.data
-          updated_booking.supervisor = form2.supervisor.data
-          db.session.commit()
-
-          flash('Booking modificado com sucesso.', 'success')
-          return redirect(url_for('admin_booking', booking_id=booking_id))
-
-
       # Handle Chat
       form3 = SendMessageForm()
-      escaped_booking_id = escape(booking_id)
-      if request.method == 'POST' and form3.validate_on_submit():
-        new_message = Message(
-                    from_user_id = current_user.id,
-                    booking_id = escaped_booking_id,
-                    message = form3.message.data)
-
-        db.session.add(new_message)
-        db.session.commit()
-        flash('Mensagem enviada com sucesso.', 'success')
-        return redirect(url_for('admin_booking', booking_id=escaped_booking_id))
 
       return render_template('protected/admin/admin_booking.html', booking=booking, form=form, form2=form2, form3=form3)
     else:
@@ -444,6 +410,89 @@ def admin_booking(booking_id):
 
 
 
+
+@app.route('/admin/add_note/booking/<booking_id>', methods=['GET', 'POST'])
+@login_required
+def admin_booking_notes(booking_id):
+  if current_user.is_admin():
+    escaped_booking_id = escape(booking_id)
+    form = BookingNotesForm()
+    if request.method == 'POST' and form.validate_on_submit():
+      escaped_note = escape(form.text.data)
+      if add_booking_note(current_user.id, escaped_booking_id, escaped_note):
+        flash('Nota adicionada com sucesso.', 'success')
+        return redirect(url_for('admin_booking', booking_id=booking_id))
+    else:
+      flash('Por favor reveja a nota.', 'info')
+      return redirect(url_for('admin_booking', booking_id=escaped_booking_id))
+  else:
+    flash('Area restrista para administradores.','danger')
+    return redirect(url_for('profile'))
+
+
+
+@app.route('/admin/send_message/booking/<booking_id>', methods=['GET','POST'])
+@login_required
+def admin_booking_send_message(booking_id):
+  if current_user.is_admin():
+    form3 = SendMessageForm()
+    escaped_booking_id = escape(booking_id)
+    escaped_message = escape(form3.message.data)
+    if request.method == 'POST' and form3.validate_on_submit():
+      new_message = Message(
+                  from_user_id = current_user.id,
+                  booking_id = escaped_booking_id,
+                  message = escaped_message)
+      db.session.add(new_message)
+      db.session.commit()
+      flash('Mensagem enviada com sucesso.', 'success')
+      return redirect(url_for('admin_booking', booking_id=escaped_booking_id))
+  else:
+    flash('Area restrista para administradores.','danger')
+    return redirect(url_for('profile'))
+
+
+
+@app.route('/admin/update/booking/<booking_id>', methods=['GET','POST'])
+@login_required
+def admin_booking_update(booking_id):
+  form2 = BookingUpdateForm()
+  services_array = Service.query.filter_by(active=True).all()
+  job_cleaner_id = JobRole.query.filter_by(name='Cleaner').first().id
+  cleaners = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_cleaner_id, available=True).all()]
+  job_supervisors_id = JobRole.query.filter_by(name='Supervisor').first().id
+  supervisors = [(i.id, i.name) for i in StaffMember.query.filter_by(id=job_supervisors_id,available=True).all()]
+  form2.service.choices = [(i.id, i.name) for i in services_array]
+  form2.cleaner.choices = cleaners
+  form2.supervisor.choices = supervisors
+
+  if current_user.is_admin():
+    if request.method == 'GET':
+      return redirect(url_for('admin_booking', booking_id=booking_id))
+    elif request.method == 'POST':
+      if form2.validate_on_submit():
+        print(form2)
+        escaped_booking_id = escape(booking_id)
+
+        updated_booking = Booking.query.filter_by(id=escaped_booking_id).first()
+        updated_booking.service = form2.service.data
+        updated_booking.amount_paid = form2.amount_paid.data
+        updated_booking.completed = form2.confirmed.data
+        updated_booking.completed = form2.completed.data
+        updated_booking.cleaner = form2.cleaner.data
+        updated_booking.supervisor = form2.supervisor.data
+        db.session.commit()
+
+        flash('Booking modificado com sucesso.', 'success')
+        return redirect(url_for('admin_booking', booking_id=escaped_booking_id))
+      else:
+        flash('Reveja a modificacao do booking.','info')
+        return redirect(url_for('admin_booking', booking_id=booking_id))
+    else:
+      return redirect(url_for('profile'))
+  else:
+    flash('Area restrista para administradores.','danger')
+    return redirect(url_for('profile'))
 
 
 # 404 route

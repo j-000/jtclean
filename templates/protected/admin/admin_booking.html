@@ -40,14 +40,14 @@
       {% if booking.completed %}
         <p>Can't change it</p>
       {% else %}
-      <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
+      <form action="{{ url_for('admin_booking_update', booking_id=booking.id) }}" method="POST">
         {{ form2.hidden_tag() }}
         {{ wtf.form_field(form2.completed) }}
         {{ wtf.form_field(form2.service) }}
-        {{ wtf.form_field(form2.amount_paid, value=booking.amount_paid) }}
-        {{ wtf.form_field(form2.confirmed, value=booking.confirmed) }}
-        {{ wtf.form_field(form2.cleaner, value=booking.cleaner) }}
-        {{ wtf.form_field(form2.supervisor, value=booking.supervisor) }}
+        {{ wtf.form_field(form2.amount_paid) }}
+        {{ wtf.form_field(form2.confirmed) }}
+        {{ wtf.form_field(form2.cleaner) }}
+        {{ wtf.form_field(form2.supervisor) }}
         <input type="submit" class="btn btn-default btn-md" value="Modificar">
       </form>
       {% endif %}
@@ -73,7 +73,7 @@
             </div>
         {% endfor %}
       </div>
-      <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
+      <form action="{{ url_for('admin_booking_send_message', booking_id=booking.id) }}" method="POST">
         {{ form.hidden_tag() }}
         {{ wtf.form_field(form3.message) }}
         <input type="submit" class="btn btn-default btn-md" value="Enviar">
@@ -94,7 +94,7 @@
         </div>
         <br>
         <br>
-        <form action="{{ url_for('admin_booking', booking_id=booking.id) }}" method="POST">
+        <form action="{{ url_for('admin_booking_notes', booking_id=booking.id) }}" method="POST">
           {{ form.hidden_tag() }}
           {{ wtf.form_field(form.text) }}
           <input type="submit" class="btn btn-default btn-md" value="Adicionar">
