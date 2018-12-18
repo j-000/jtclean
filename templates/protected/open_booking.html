@@ -93,9 +93,8 @@
         {% endfor %}
       </div>
       {% if not booking.completed %}
-      <form action="{{ url_for('messages') }}" method="POST">
+      <form action="{{ url_for('messages', booking_id=booking.id) }}" method="POST">
         {{ form.hidden_tag() }}
-        {{ wtf.form_field(form.booking_id, value=booking.id) }}
         {{ wtf.form_field(form.message) }}
         <input type="submit" class="btn btn-default btn-md" value="Enviar">
       </form>

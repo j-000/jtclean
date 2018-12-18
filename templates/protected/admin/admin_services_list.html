@@ -38,7 +38,7 @@
         <tbody>
           {% for service in services_array %}
             <tr>
-              <td><a href="{{ url_for('admin_service', service_id=service.id) }}">{{ service.id }}</a></td>
+              <td>{{ service.id }}</td>
               <td>{{ service.name }}</td>
               <td>{{ service.price }}</td>
               <td>

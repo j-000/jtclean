@@ -66,7 +66,6 @@ class BookingUpdateForm(FlaskForm):
 
 class SendMessageForm(FlaskForm):
     message = TextAreaField('Mensagem:', validators=[InputRequired()])
-    booking_id = SelectField('Booking',id='messageBookingIdField', coerce=int, validators=[InputRequired()])
 
 
 class SearchForUserForm(FlaskForm):
