@@ -100,7 +100,7 @@ def new_booking():
   return render_template('protected/new_booking.html')
 
 
-@app.route('/profile/messages/<booking_id>', methods=['POST'])
+@app.route('/profile/messages/<booking_id>', methods=['GET','POST'])
 @login_required
 def messages(booking_id):
   messageForm = SendMessageForm()

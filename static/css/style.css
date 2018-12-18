@@ -7,6 +7,21 @@ Custom Styles. Bootstrap Styles are default'
     background-color: rgba(255,193,7, 0.6)!important;
 }
 
+.first-chevron{
+    -webkit-clip-path: polygon(97% 0%, 100% 50%, 97% 100%, 0% 100%, 0% 50%, 0% 0%);
+            clip-path: polygon(97% 0%, 100% 50%, 97% 100%, 0% 100%, 0% 50%, 0% 0%);
+}
+
+.right-chevron{
+    -webkit-clip-path: polygon(97% 0%, 100% 50%, 97% 100%, 0% 100%, 3% 50%, 0% 0%);
+            clip-path: polygon(97% 0%, 100% 50%, 97% 100%, 0% 100%, 3% 50%, 0% 0%);
+}
+
+.last-chevron{
+    -webkit-clip-path: polygon(100% 0%, 100% 50%, 100% 100%, 0% 100%, 3% 50%, 0% 0%);
+            clip-path: polygon(100% 0%, 100% 50%, 100% 100%, 0% 100%, 3% 50%, 0% 0%);
+}
+
 #messagesContainer{
     height: 300px!important;
     overflow-y: scroll!important;
