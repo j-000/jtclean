@@ -12,6 +12,8 @@ from datetime import date, timedelta
 import json
 from sqlalchemy import desc
 from myModels import app
+from itsdangerous import URLSafeTimedSerializer
+
 
 
 app.config.update(
@@ -42,7 +44,7 @@ def load_user(user_id):
 @login_manager.unauthorized_handler
 def unauthorized():
   flash('Por favor entre na sua conta para aceder ao seu perfile.', 'info')
-  return redirect(url_for('login'))
+  return redirect(url_for('login', next=request.url))
 
 
 def sendEmail(email_subject,recipients, email_text=None, email_html=None):
@@ -51,6 +53,29 @@ def sendEmail(email_subject,recipients, email_text=None, email_html=None):
   msg.html = email_html
   mail.send(msg)
   return True
+
+
+
+def generate_confirmation_token(email):
+  serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+  return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
+
+
+def confirm_token(token, expiration=3600):
+  serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+  try:
+    email = serializer.loads(
+        token,
+        salt=app.config['SECURITY_PASSWORD_SALT'],
+        max_age=expiration
+    )
+  except:
+      return False
+  return email
+
+
+
+
 
 # ROUTES
 # Index route - main page
@@ -78,11 +103,47 @@ def registo():
               password = hashed_password)
       db.session.add(new_user)
       db.session.commit()
-      sendEmail(email_subject='Bem vindo a JT Clean!', recipients=[escape(form.email.data)], email_html=render_template('email_templates/welcome_email.html'))
+      token = generate_confirmation_token(escape(form.email.data))
+      url = 'http://localhost:5000' + url_for('confirm_email', token=token)
+      html = render_template('email_templates/welcome_email.html', confirm_url=url, _external=True)
+      sendEmail(email_subject='Confirme a sua conta!',
+                recipients=[escape(form.email.data)],
+                email_html=html)
+
       flash('A sua conta foi criada com sucesso! Faca confirmacao da sua conta atraves do link enviado para o seu email.', 'success')
       return redirect(url_for('login'))
     else:
       return render_template('public/registo.html', form=form)
+
+
+
+@app.route('/confirm_email/<token>')
+@login_required
+def confirm_email(token):
+  try:
+    email = confirm_token(token)
+  except:
+    pass
+
+  if email:
+    user = User.query.filter_by(email=email).first_or_404()
+    if user.confirmed:
+      flash('A sua conta ja se encontra verificada.','success')
+    else:
+      user.confirmed = True
+      db.session.commit()
+      flash('A sua conta foi verificada com sucesso!','success')
+  else:
+    flash('O link nao e valido ou expirou. Verifique a sua conta com o novo link que acabou de ser enviado.', 'danger')
+    token = generate_confirmation_token(current_user.email)
+    url = 'https://localhost:5000' + url_for('confirm_email', token=token)
+    html = render_template('email_templates/welcome_email.html', confirm_url=url, _external=True)
+    sendEmail(email_subject='Confirme a sua conta de novo!',
+                recipients=[current_user.email],
+                email_html=html)
+
+  return redirect(url_for('profile'))
+
 
 
 
@@ -113,7 +174,10 @@ def login():
 @app.route('/profile', methods=['GET'])
 @login_required
 def profile():
+  if not current_user.confirmed:
+    flash('Deve confirmar a sua conta atraves do link enviado para o seu email.','danger')
   return render_template('protected/profile.html')
+
 
 
 

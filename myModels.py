@@ -5,9 +5,11 @@ from flask_login import UserMixin
 
 
 app = Flask(__name__)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'
 app.config['SECRET_KEY'] = 'r25hetAJAOWEHH2829292DJDOFUSODFUOSDJFweewefe515615'
+app.config['SECURITY_PASSWORD_SALT'] = 'r25hetAJAOWEHH2829292DJDOFUSODFUOSDJFweewefe515615'
 db = SQLAlchemy(app)
 
 class Role(db.Model):
@@ -33,6 +35,7 @@ class User(db.Model, UserMixin):
   password = db.Column(db.String(85))
   role = db.Column(db.Integer, default=1)
   premium = db.Column(db.Boolean(), default=False)
+  confirmed = db.Column(db.Boolean(), default=False)
 
   def _ADMIN_get_total_bookings(self):
     if self.is_admin():
