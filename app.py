@@ -1,4 +1,6 @@
 from flask import url_for, render_template, flash, redirect, request, escape
+from flask_mail import Mail
+from flask_mail import Message as MailMessage
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
@@ -10,6 +12,19 @@ from datetime import date, timedelta
 import json
 from sqlalchemy import desc
 from myModels import app
+
+
+app.config.update(
+  DEBUG=False,
+  MAIL_SERVER='smtp.gmail.com',
+  MAIL_PORT=465,
+  MAIL_USE_SSL=True,
+  MAIL_USERNAME = 'jtcleaningltd@gmail.com',
+  MAIL_PASSWORD = 'JTcleaning123',
+  MAIL_DEFAULT_SENDER = 'jtcleaningltd@gmail.com'
+  )
+
+mail = Mail(app)
 
 Bootstrap(app)
 login_manager = LoginManager()
@@ -30,13 +45,20 @@ def unauthorized():
   return redirect(url_for('login'))
 
 
+def sendEmail(email_subject,recipients, email_text=None, email_html=None):
+  msg = MailMessage(email_subject, recipients=recipients)
+  msg.body = email_text
+  msg.html = email_html
+  mail.send(msg)
+  return True
+
 # ROUTES
 # Index route - main page
 @app.route('/')
 @app.route('/home')
 @app.route('/index')
 def index():
-    return render_template('public/index.html')
+  return render_template('public/index.html')
 
 
 
@@ -56,7 +78,8 @@ def registo():
               password = hashed_password)
       db.session.add(new_user)
       db.session.commit()
-      flash('A sua conta foi criada com sucesso!', 'success')
+      sendEmail(email_subject='Bem vindo a JT Clean!', recipients=[escape(form.email.data)], email_html=render_template('email_templates/welcome_email.html'))
+      flash('A sua conta foi criada com sucesso! Faca confirmacao da sua conta atraves do link enviado para o seu email.', 'success')
       return redirect(url_for('login'))
     else:
       return render_template('public/registo.html', form=form)
