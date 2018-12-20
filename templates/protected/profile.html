@@ -19,7 +19,7 @@
     <div class="col-md-4">
       <a href="#" class=" list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Something</h5>
+          <h5 class="mb-1">Perfile</h5>
         </div>
         <br>
         <p class="mb-1"></p>
@@ -30,8 +30,8 @@
       <a href="{{ url_for('new_booking') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Servicos</h5>
-          {% if current_user.get_total_bookings() > 0 %}
-          <span class="badge badge-info">{{ current_user.get_total_bookings() }} servicos agendados</span>
+          {% if current_user.get_total_active_bookings() > 0 %}
+          <span class="badge badge-info">{{ current_user.get_total_active_bookings() }} servicos agendados</span>
           {% else %}
           {% endif %}
         </div>

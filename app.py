@@ -104,8 +104,8 @@ def registo():
       db.session.add(new_user)
       db.session.commit()
       token = generate_confirmation_token(escape(form.email.data))
-      url = 'http://localhost:5000' + url_for('confirm_email', token=token)
-      html = render_template('email_templates/welcome_email.html', confirm_url=url, _external=True)
+      url = url_for('confirm_email', token=token, _external=True)
+      html = render_template('email_templates/welcome_email.html', confirm_url=url)
       sendEmail(email_subject='Confirme a sua conta!',
                 recipients=[escape(form.email.data)],
                 email_html=html)
@@ -136,8 +136,8 @@ def confirm_email(token):
   else:
     flash('O link nao e valido ou expirou. Verifique a sua conta com o novo link que acabou de ser enviado.', 'danger')
     token = generate_confirmation_token(current_user.email)
-    url = 'https://localhost:5000' + url_for('confirm_email', token=token)
-    html = render_template('email_templates/welcome_email.html', confirm_url=url, _external=True)
+    url = url_for('confirm_email', token=token, _external=True)
+    html = render_template('email_templates/welcome_email.html', confirm_url=url)
     sendEmail(email_subject='Confirme a sua conta de novo!',
                 recipients=[current_user.email],
                 email_html=html)
@@ -177,7 +177,6 @@ def profile():
   if not current_user.confirmed:
     flash('Deve confirmar a sua conta atraves do link enviado para o seu email.','danger')
   return render_template('protected/profile.html')
-
 
 
 
@@ -246,6 +245,13 @@ def open_booking(booking_id):
   escaped_booking_id = escape(booking_id)
   booking = Booking.query.filter_by(id=escaped_booking_id).first()
   if booking:
+    # Update all unread messages to read.
+    messages_to_user = Message.query.filter_by(booking_id=escaped_booking_id, read=False).all()
+    for unread_message in messages_to_user:
+      unread_message.read = True
+    db.session.commit()
+
+    # Handle send message form
     messageForm = SendMessageForm()
     if request.method == 'POST' and messageForm.validate_on_submit():
       new_message = Message(
@@ -320,6 +326,92 @@ def logout():
 
 
 
+################################# API ###########################################
+
+
+
+
+@app.route('/api/admin/dashboard/', methods=['GET'])
+@login_required
+def api_admin_dashboard():
+  if current_user.is_admin():
+
+    _today = datetime.datetime.utcnow().date()
+    _fiveDaysAgo = _today - timedelta(7)
+    _thirtyDaysAgo = _today - timedelta(30)
+
+    # Bookings Stats
+    response = {}
+    bookings_array = Booking.query.all()
+    bookings_stats = {
+      'created':{
+        'total': len(bookings_array),
+        'today':0,
+        'week':0,
+        'month':0,
+      },
+      'confirmed':0,
+      'unconfirmed':0,
+      'cancelled':0,
+    }
+
+    for booking in bookings_array:
+      booking_date = booking.timestamp.date()
+      if booking_date == _today:
+        bookings_stats['created']['today'] += 1
+      if booking_date >= _fiveDaysAgo and booking_date < _today:
+        bookings_stats['created']['week'] += 1
+      if booking_date >= _thirtyDaysAgo and booking_date <= _today:
+        bookings_stats['created']['month'] += 1
+
+      if booking.confirmed:
+        bookings_stats['confirmed'] += 1
+      else:
+        bookings_stats['unconfirmed'] += 1
+
+    response['bookings_stats'] = bookings_stats
+    # End booking stats
+
+    # Users Stats
+    users_array = User.query.all()
+    users_stast = {
+      'created':{
+        'total':len(users_array),
+        'today':0,
+        'week':0,
+        'month':0
+      }
+    }
+    for user in users_array:
+      user_created_date = user.timestamp.date()
+      if user_created_date == _today:
+        users_stast['created']['today'] += 1
+      if user_created_date > _fiveDaysAgo and user_created_date < _today:
+        users_stast['created']['week'] += 1
+      if user_created_date >= _thirtyDaysAgo and user_created_date <= _today:
+        users_stast['created']['month'] += 1
+
+    response['users_stast'] = users_stast
+    # End user stast
+
+  else:
+    response = {'success':False, 'error':True, 'message':'You don\'t have permissions to view this route. This attempt has been flagged.'}
+
+  return json.dumps(response)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##################################ADMIN ROUTES##################################
 
 # Admin route for Admin users
@@ -338,27 +430,7 @@ def admin():
 @login_required
 def admin_dashboard():
   if current_user.is_admin():
-    #  REFACTOR THIS OUT TO AN API
-    bookings_array = Booking.query.all()
-    bookings_stats = {
-      'total': len(bookings_array),
-      'today':0,
-      'week':0,
-      'month':0,
-    }
-    _today = datetime.datetime.utcnow().date()
-    _fiveDaysAgo = _today - timedelta(7)
-    _thirtyDaysAgo = _today - timedelta(30)
-
-    for booking in bookings_array:
-      booking_date = booking.timestamp.date()
-      if booking_date == _today:
-        bookings_stats['today'] += 1
-      if booking_date >= _fiveDaysAgo and booking_date <= _today:
-        bookings_stats['week'] += 1
-      if booking_date >= _thirtyDaysAgo and booking_date <= _today:
-        bookings_stats['month'] += 1
-    # REFACTOR END
+    bookings_stats =[]
     return render_template('protected/admin/admin_dashboard.html', bookings_stats=bookings_stats)
   else:
     flash('Area restrista para administradores.', 'danger')

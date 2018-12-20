@@ -55,8 +55,8 @@ class User(db.Model, UserMixin):
   def get_user_bookings(self):
     return Booking.query.filter_by(user_id=self.id).all()
 
-  def get_total_bookings(self):
-    return len(Booking.query.filter_by(user_id=self.id).all())
+  def get_total_active_bookings(self):
+    return len(Booking.query.filter_by(user_id=self.id, completed=False).all())
 
   def get_total_paid(self):
     total = 0
@@ -69,27 +69,26 @@ class User(db.Model, UserMixin):
     vat = total - ( total / 1.2 )
     return round(vat, 2)
 
-  def get_messages_from_user(self):
-    return Message.query.filter_by(from_user_id=self.id).order_by(Message.timestamp.desc()).all()
-
-  def get_messages_to_user(self):
-    return Message.query.filter_by(to_user_id=self.id).order_by(Message.timestamp.desc()).all()
-
   def get_all_messages_for_booking(self, booking_id):
     messages = Message.query.filter_by(booking_id=booking_id).order_by(Message.timestamp.asc()).all()
     return messages
 
-  def get_total_messages_to_user(self):
-    return len(Message.query.filter_by(to_user_id=self.id).all())
-
-  def get_total_messages_from_user(self):
-    return len(Message.query.filter_by(from_user_id=self.id).all())
-
-  def get_total_unread_messages_to_user(self):
-    return len(Message.query.filter_by(to_user_id=self.id, read=False).all())
+  def get_total_unread_messages_for_booking(self, booking_id):
+    messages = Message.query.filter_by(read=False, booking_id=booking_id).all()
+    return len(messages)
 
   def get_staffMemeber_details(self):
     return StaffMember.query.filter_by(user_id=self.id).all()
+
+  # def get_total_messages_to_user(self):
+  #   return len(Message.query.filter_by(to_user_id=self.id).all())
+
+  # def get_total_messages_from_user(self):
+  #   return len(Message.query.filter_by(from_user_id=self.id).all())
+
+  # def get_total_unread_messages_to_user(self):
+  #   return len(Message.query.filter_by(to_user_id=self.id, read=False).all())
+
 
 
 
@@ -151,6 +150,7 @@ class Booking(db.Model):
   comment = db.Column(db.Text()) # customer's coment
   confirmed = db.Column(db.Boolean(), default=False)
   completed = db.Column(db.Boolean(), default=False)
+  # canceled == db.Column(db.Boolean(), default=False)
   cleaner = db.Column(db.String(10), nullable=True, default=None)
   supervisor = db.Column(db.String(10), nullable=True, default=None)
 
