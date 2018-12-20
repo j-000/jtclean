@@ -149,8 +149,11 @@ class Booking(db.Model):
   amount_paid = db.Column(db.Float())
   comment = db.Column(db.Text()) # customer's coment
   confirmed = db.Column(db.Boolean(), default=False)
+  confirmed_on = db.Column(db.DateTime, default=None)
   completed = db.Column(db.Boolean(), default=False)
-  # canceled == db.Column(db.Boolean(), default=False)
+  completed_on = db.Column(db.DateTime, default=None)
+  cancelled = db.Column(db.Boolean(), default=False)
+  cancelled_on = db.Column(db.DateTime, default=None)
   cleaner = db.Column(db.String(10), nullable=True, default=None)
   supervisor = db.Column(db.String(10), nullable=True, default=None)
 

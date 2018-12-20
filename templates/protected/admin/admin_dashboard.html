@@ -29,7 +29,7 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><span class="badge badge-info">Bookings:</span></td>
+                    <td><span class="badge badge-success">Bookings:</span></td>
                     <td id='booking_today'></td>
                   </tr>
                   <tr>
@@ -38,7 +38,7 @@
                   </tr>
                   <tr>
                     <td><span class="badge badge-danger">Cancelamentos:</span></td>
-                    <td></td>
+                    <td id='cancelled_today'></td>
                   </tr>
                 </tbody>
               </table>
@@ -58,7 +58,7 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><span class="badge badge-info">Bookings:</span></td>
+                    <td><span class="badge badge-success">Bookings:</span></td>
                     <td id='booking_week'></td>
                   </tr>
                   <tr>
@@ -67,7 +67,7 @@
                   </tr>
                   <tr>
                     <td><span class="badge badge-danger">Cancelamentos:</span></td>
-                    <td></td>
+                    <td id='cancelled_week'></td>
                   </tr>
                 </tbody>
               </table>
@@ -87,7 +87,7 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><span class="badge badge-info">Bookings:</span></td>
+                    <td><span class="badge badge-success">Bookings:</span></td>
                     <td id='booking_month'></td>
                   </tr>
                   <tr>
@@ -96,7 +96,7 @@
                   </tr>
                   <tr>
                     <td><span class="badge badge-danger">Cancelamentos:</span></td>
-                    <td></td>
+                    <td id='cancelled_month'></td>
                   </tr>
                 </tbody>
               </table>
@@ -109,21 +109,40 @@
           <div class="col-md-4">
             <div class="card">
               <div class="card-body">
-                This is some text within a card block.
+                <h4 class="card-title">Mensagens</h4>
+                <table class="table table-borderless table-sm">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="badge badge-warning">Nao Lidas:</span></td>
+                      <td id='unread_messages'></td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-warning">Bookings:</span></td>
+                      <td id='bookings_unread_messages'></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="card">
               <div class="card-body">
-                This is some text within a card block.
+                <h4 class="card-title">Margem</h4>
+
               </div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="card">
               <div class="card-body">
-                This is some text within a card block.
+                <h4 class="card-title"></h4>
               </div>
             </div>
           </div>
@@ -140,6 +159,7 @@
       method: 'GET',
       success: function (data) {
         d = JSON.parse(data);
+
         $('#booking_today').text(d['bookings_stats']['created']['today']);
         $('#booking_week').text(d['bookings_stats']['created']['week']);
         $('#booking_month').text(d['bookings_stats']['created']['month']);
@@ -147,6 +167,16 @@
         $('#users_today').text(d['users_stats']['created']['today']);
         $('#users_week').text(d['users_stats']['created']['week']);
         $('#users_month').text(d['users_stats']['created']['month']);
+
+        $('#cancelled_today').text(d['bookings_stats']['cancelled']['today']);
+        $('#cancelled_week').text(d['bookings_stats']['cancelled']['week']);
+        $('#cancelled_month').text(d['bookings_stats']['cancelled']['month']);
+
+        $('#unread_messages').text(d['unread_messages']['total']);
+        b = d['unread_messages']['bookings_array'];
+        for (var i = 0; i < b.length; i++) {
+          $('#bookings_unread_messages').append('[<a href="/admin/booking/'+b[i]+'">'+b[i]+'</a>]');
+        }
         console.log(d);
 
       },

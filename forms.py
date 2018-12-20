@@ -58,6 +58,7 @@ class BookingUpdateForm(FlaskForm):
     amount_paid = DecimalField('Nova Quantia')
     confirmed = BooleanField('Confirmado')
     completed = BooleanField('Completo')
+    cancelled = BooleanField('Cancelado')
     cleaner = SelectField('Empregado/a', coerce=int)
     supervisor = SelectField('Supervisor/a', coerce=int)
 

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block body %}
+
+<div class="container" style="text-align: center; padding: 50px 0; width: 75%;">
+   <!-- BEGIN FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{category}}" role="alert">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <!-- END FLASH MESSAGES -->
+    <div class="row" style="padding: 0;">
+      <p>User is able to set favourite services</p><br>
+      <p>User is able to set express checkout</p><br>
+      <p>Imagem</p><br>
+      <p>Bio</p><br>
+      <p>Empresa</p><br>
+      <p>Morada</p><br>
+    </div>
+</div>
+{% endblock %}

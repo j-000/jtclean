@@ -176,7 +176,7 @@ def login():
 def profile():
   if not current_user.confirmed:
     flash('Deve confirmar a sua conta atraves do link enviado para o seu email.','danger')
-  return render_template('protected/profile.html')
+  return render_template('protected/menu.html')
 
 
 
@@ -311,6 +311,14 @@ def profile_settings():
 
 
 # Dashboard route
+@app.route('/profile/user', methods=['GET'])
+@login_required
+def user_profile():
+  return render_template('protected/user_profile.html')
+
+
+
+# Dashboard route
 @app.route('/profile/dashboard', methods=['GET'])
 @login_required
 def dashboard():
@@ -332,70 +340,106 @@ def logout():
 
 
 @app.route('/api/admin/dashboard/', methods=['GET'])
+@login_required
 def api_admin_dashboard():
+  if current_user.is_admin():
 
-  _today = datetime.datetime.utcnow().date()
-  _fiveDaysAgo = _today - timedelta(7)
-  _thirtyDaysAgo = _today - timedelta(30)
+    _today = datetime.datetime.utcnow().date()
+    _fiveDaysAgo = _today - timedelta(7)
+    _thirtyDaysAgo = _today - timedelta(30)
 
-  # Bookings Stats
-  response = {}
-  bookings_array = Booking.query.all()
-  bookings_stats = {
-    'created':{
-      'total': len(bookings_array),
-      'today':0,
-      'week':0,
-      'month':0,
-    },
-    'confirmed':0,
-    'unconfirmed':0,
-    'cancelled':0,
-  }
-
-  for booking in bookings_array:
-    booking_date = booking.timestamp.date()
-    if booking_date == _today:
-      bookings_stats['created']['today'] += 1
-    if booking_date >= _fiveDaysAgo and booking_date < _today:
-      bookings_stats['created']['week'] += 1
-    if booking_date >= _thirtyDaysAgo and booking_date <= _today:
-      bookings_stats['created']['month'] += 1
-
-    if booking.confirmed:
-      bookings_stats['confirmed'] += 1
-    else:
-      bookings_stats['unconfirmed'] += 1
-
-  response['bookings_stats'] = bookings_stats
-  # End booking stats
-
-  # Users Stats
-  users_array = User.query.all()
-  users_stast = {
-    'created':{
-      'total':len(users_array),
-      'today':0,
-      'week':0,
-      'month':0
+    # Bookings Stats
+    response = {}
+    bookings_array = Booking.query.all()
+    bookings_stats = {
+      'created':{
+        'total': len(bookings_array),
+        'today':0,
+        'week':0,
+        'month':0,
+      },
+      'confirmed':{
+        'total':0,
+        'today':0,
+        'week':0,
+        'month':0
+      },
+      'cancelled':{
+        'total':0,
+        'today':0,
+        'week':0,
+        'month':0
+      },
+      'unconfirmed':0,
     }
-  }
-  for user in users_array:
-    user_created_date = user.timestamp.date()
-    if user_created_date == _today:
-      users_stast['created']['today'] += 1
-    if user_created_date > _fiveDaysAgo and user_created_date < _today:
-      users_stast['created']['week'] += 1
-    if user_created_date >= _thirtyDaysAgo and user_created_date <= _today:
-      users_stast['created']['month'] += 1
 
-  response['users_stats'] = users_stast
-  # End user stast
+    for booking in bookings_array:
+      booking_date = booking.timestamp.date()
+      if booking_date == _today:
+        bookings_stats['created']['today'] += 1
+      if booking_date >= _fiveDaysAgo and booking_date <= _today:
+        bookings_stats['created']['week'] += 1
+      if booking_date >= _thirtyDaysAgo and booking_date <= _today:
+        bookings_stats['created']['month'] += 1
 
-  # else:
-  #   response = {'success':False, 'error':True, 'message':'You don\'t have permissions to view this route. This attempt has been flagged.'}
+      if booking.confirmed:
+        bookings_stats['confirmed']['total'] += 1
+        confirmed_date = booking.confirmed_on.date()
+        if confirmed_date == _today:
+          bookings_stats['confirmed']['today'] += 1
+        if confirmed_date >= _fiveDaysAgo and confirmed_date <= _today:
+          bookings_stats['confirmed']['week'] += 1
+        if confirmed_date >= _thirtyDaysAgo and confirmed_date <= _today:
+          bookings_stats['confirmed']['month'] += 1
 
-  return json.dumps(response)
+      if booking.cancelled:
+        bookings_stats['cancelled']['total'] += 1
+        cancelled_date = booking.confirmed_on.date()
+        if cancelled_date == _today:
+          bookings_stats['cancelled']['today'] += 1
+        if cancelled_date >= _fiveDaysAgo and cancelled_date <= _today:
+          bookings_stats['cancelled']['week'] += 1
+        if cancelled_date >= _thirtyDaysAgo and cancelled_date <= _today:
+          bookings_stats['cancelled']['month'] += 1
+
+
+      if not booking.confirmed and not booking.cancelled:
+        bookings_stats['unconfirmed'] += 1
+
+
+
+    response['bookings_stats'] = bookings_stats
+    # End booking stats
+
+    # Users Stats
+    users_array = User.query.all()
+    users_stast = {
+      'created':{
+        'total':len(users_array),
+        'today':0,
+        'week':0,
+        'month':0
+      }
+    }
+    for user in users_array:
+      user_created_date = user.timestamp.date()
+      if user_created_date == _today:
+        users_stast['created']['today'] += 1
+      if user_created_date > _fiveDaysAgo and user_created_date < _today:
+        users_stast['created']['week'] += 1
+      if user_created_date >= _thirtyDaysAgo and user_created_date <= _today:
+        users_stast['created']['month'] += 1
+
+    response['users_stats'] = users_stast
+    response['unread_messages'] = {}
+    unread_messages = Message.query.filter_by(read=False).all()
+    response['unread_messages']['total'] = len(unread_messages)
+    response['unread_messages']['bookings_array'] = list(set([(i.booking_id) for i in unread_messages]))
+    return json.dumps(response)
+
+  else:
+    flash('Area restricta para developers. Precisa de aceder ao nosso API? Contacte a nossa equipa.','info')
+    return redirect(url_for('login'))
 
 
 
@@ -632,8 +676,19 @@ def admin_booking_update(booking_id):
       updated_booking = Booking.query.filter_by(id=escaped_booking_id).first()
       updated_booking.service = form2.service.data
       updated_booking.amount_paid = form2.amount_paid.data
+
       updated_booking.confirmed = form2.confirmed.data
+      if form2.confirmed.data:
+        updated_booking.confirmed_on = datetime.datetime.utcnow()
+
       updated_booking.completed = form2.completed.data
+      if form2.completed.data:
+        updated_booking.completed_on = datetime.datetime.utcnow()
+
+      updated_booking.cancelled = form2.cancelled.data
+      if form2.cancelled.data:
+        updated_booking.cancelled_on = datetime.datetime.utcnow()
+
       updated_booking.cleaner = form2.cleaner.data
       updated_booking.supervisor = form2.supervisor.data
       db.session.commit()
