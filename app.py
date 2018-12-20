@@ -13,7 +13,7 @@ import json
 from sqlalchemy import desc
 from myModels import app
 from itsdangerous import URLSafeTimedSerializer
-
+import requests
 
 
 app.config.update(
@@ -332,70 +332,68 @@ def logout():
 
 
 @app.route('/api/admin/dashboard/', methods=['GET'])
-@login_required
 def api_admin_dashboard():
-  if current_user.is_admin():
 
-    _today = datetime.datetime.utcnow().date()
-    _fiveDaysAgo = _today - timedelta(7)
-    _thirtyDaysAgo = _today - timedelta(30)
+  _today = datetime.datetime.utcnow().date()
+  _fiveDaysAgo = _today - timedelta(7)
+  _thirtyDaysAgo = _today - timedelta(30)
 
-    # Bookings Stats
-    response = {}
-    bookings_array = Booking.query.all()
-    bookings_stats = {
-      'created':{
-        'total': len(bookings_array),
-        'today':0,
-        'week':0,
-        'month':0,
-      },
-      'confirmed':0,
-      'unconfirmed':0,
-      'cancelled':0,
+  # Bookings Stats
+  response = {}
+  bookings_array = Booking.query.all()
+  bookings_stats = {
+    'created':{
+      'total': len(bookings_array),
+      'today':0,
+      'week':0,
+      'month':0,
+    },
+    'confirmed':0,
+    'unconfirmed':0,
+    'cancelled':0,
+  }
+
+  for booking in bookings_array:
+    booking_date = booking.timestamp.date()
+    if booking_date == _today:
+      bookings_stats['created']['today'] += 1
+    if booking_date >= _fiveDaysAgo and booking_date < _today:
+      bookings_stats['created']['week'] += 1
+    if booking_date >= _thirtyDaysAgo and booking_date <= _today:
+      bookings_stats['created']['month'] += 1
+
+    if booking.confirmed:
+      bookings_stats['confirmed'] += 1
+    else:
+      bookings_stats['unconfirmed'] += 1
+
+  response['bookings_stats'] = bookings_stats
+  # End booking stats
+
+  # Users Stats
+  users_array = User.query.all()
+  users_stast = {
+    'created':{
+      'total':len(users_array),
+      'today':0,
+      'week':0,
+      'month':0
     }
+  }
+  for user in users_array:
+    user_created_date = user.timestamp.date()
+    if user_created_date == _today:
+      users_stast['created']['today'] += 1
+    if user_created_date > _fiveDaysAgo and user_created_date < _today:
+      users_stast['created']['week'] += 1
+    if user_created_date >= _thirtyDaysAgo and user_created_date <= _today:
+      users_stast['created']['month'] += 1
 
-    for booking in bookings_array:
-      booking_date = booking.timestamp.date()
-      if booking_date == _today:
-        bookings_stats['created']['today'] += 1
-      if booking_date >= _fiveDaysAgo and booking_date < _today:
-        bookings_stats['created']['week'] += 1
-      if booking_date >= _thirtyDaysAgo and booking_date <= _today:
-        bookings_stats['created']['month'] += 1
+  response['users_stats'] = users_stast
+  # End user stast
 
-      if booking.confirmed:
-        bookings_stats['confirmed'] += 1
-      else:
-        bookings_stats['unconfirmed'] += 1
-
-    response['bookings_stats'] = bookings_stats
-    # End booking stats
-
-    # Users Stats
-    users_array = User.query.all()
-    users_stast = {
-      'created':{
-        'total':len(users_array),
-        'today':0,
-        'week':0,
-        'month':0
-      }
-    }
-    for user in users_array:
-      user_created_date = user.timestamp.date()
-      if user_created_date == _today:
-        users_stast['created']['today'] += 1
-      if user_created_date > _fiveDaysAgo and user_created_date < _today:
-        users_stast['created']['week'] += 1
-      if user_created_date >= _thirtyDaysAgo and user_created_date <= _today:
-        users_stast['created']['month'] += 1
-
-    response['users_stast'] = users_stast
-    # End user stast
-
-  else:
-    response = {'success':False, 'error':True, 'message':'You don\'t have permissions to view this route. This attempt has been flagged.'}
+  # else:
+  #   response = {'success':False, 'error':True, 'message':'You don\'t have permissions to view this route. This attempt has been flagged.'}
 
   return json.dumps(response)
 
@@ -430,8 +428,8 @@ def admin():
 @login_required
 def admin_dashboard():
   if current_user.is_admin():
-    bookings_stats =[]
-    return render_template('protected/admin/admin_dashboard.html', bookings_stats=bookings_stats)
+    api_url=url_for('api_admin_dashboard', _external=True)
+    return render_template('protected/admin/admin_dashboard.html', api_url=api_url)
   else:
     flash('Area restrista para administradores.', 'danger')
     return redirect(url_for('profile'))

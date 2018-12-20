@@ -30,11 +30,11 @@
                 <tbody>
                   <tr>
                     <td><span class="badge badge-info">Bookings:</span></td>
-                    <td>{{ bookings_stats['today'] }}</td>
+                    <td id='booking_today'></td>
                   </tr>
                   <tr>
                     <td><span class="badge badge-info">Clientes:</span></td>
-                    <td></td>
+                    <td id='users_today'></td>
                   </tr>
                   <tr>
                     <td><span class="badge badge-danger">Cancelamentos:</span></td>
@@ -59,11 +59,11 @@
                 <tbody>
                   <tr>
                     <td><span class="badge badge-info">Bookings:</span></td>
-                    <td>{{ bookings_stats['week'] }}</td>
+                    <td id='booking_week'></td>
                   </tr>
                   <tr>
                     <td><span class="badge badge-info">Clientes:</span></td>
-                    <td></td>
+                    <td id='users_week'></td>
                   </tr>
                   <tr>
                     <td><span class="badge badge-danger">Cancelamentos:</span></td>
@@ -88,11 +88,11 @@
                 <tbody>
                   <tr>
                     <td><span class="badge badge-info">Bookings:</span></td>
-                    <td>{{ bookings_stats['month'] }}</td>
+                    <td id='booking_month'></td>
                   </tr>
                   <tr>
                     <td><span class="badge badge-info">Clientes:</span></td>
-                    <td></td>
+                    <td id='users_month'></td>
                   </tr>
                   <tr>
                     <td><span class="badge badge-danger">Cancelamentos:</span></td>
@@ -131,4 +131,29 @@
     </div>
   </div>
 </div>
+{% endblock %}
+{% block extrajs %}
+<script type="text/javascript">
+  $(window).ready(function(){
+    $.ajax({
+      url: '{{ api_url }}',
+      method: 'GET',
+      success: function (data) {
+        d = JSON.parse(data);
+        $('#booking_today').text(d['bookings_stats']['created']['today']);
+        $('#booking_week').text(d['bookings_stats']['created']['week']);
+        $('#booking_month').text(d['bookings_stats']['created']['month']);
+
+        $('#users_today').text(d['users_stats']['created']['today']);
+        $('#users_week').text(d['users_stats']['created']['week']);
+        $('#users_month').text(d['users_stats']['created']['month']);
+        console.log(d);
+
+      },
+      error: function (e){
+        console.log(e);
+      }
+    });
+  });
+</script>
 {% endblock %}
