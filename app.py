@@ -220,6 +220,7 @@ def book():
                   service_id = escape(bookingForm.service.data),
                   date_from = escape(bookingForm.date_from.data),
                   date_to = escape(bookingForm.date_to.data),
+                  address = escape(bookingForm.address.data),
                   start_time = escape(bookingForm.time.data),
                   duration = escape(bookingForm.duration.data),
                   amount_paid = service_price,
@@ -425,7 +426,7 @@ def api_admin_dashboard():
       user_created_date = user.timestamp.date()
       if user_created_date == _today:
         users_stast['created']['today'] += 1
-      if user_created_date > _fiveDaysAgo and user_created_date < _today:
+      if user_created_date > _fiveDaysAgo and user_created_date <= _today:
         users_stast['created']['week'] += 1
       if user_created_date >= _thirtyDaysAgo and user_created_date <= _today:
         users_stast['created']['month'] += 1
@@ -705,69 +706,14 @@ def admin_booking_update(booking_id):
     return redirect(url_for('profile'))
 
 
+
+
 # 404 route
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 
-
-############## HELPER DUMMY FUCNTIONS
-
-def create_roles():
-  # Add Roles
-  u = Role(name='User')
-  s = Role(name='Staff')
-  a = Role(name='Admin')
-  db.session.add(u)
-  db.session.add(s)
-  db.session.add(a)
-  db.session.commit()
-  return None
-
-
-def create_job_roles():
-  # Add JobRoles
-  cl = JobRole(name='Cleaner')
-  sp = JobRole(name='Supervisor')
-  mn = JobRole(name='Manager')
-  db.session.add(cl)
-  db.session.add(sp)
-  db.session.add(mn)
-  db.session.commit()
-  return None
-
-def create_sample_users():
-  admin_user = User(name='Admin',
-                  surname='Office',
-                  email='a@jt.com',
-                  password=generate_password_hash('tina1234', method='sha256'),
-                  role=3,
-                  premium=True)
-  db.session.add(admin_user)
-
-  # add a cleaner
-  cleaner_user = User(name='Tina',
-                surname='Silva',
-                email='t@jt.com',
-                password=generate_password_hash('tina1234', method='sha256'),
-                role=2)
-  db.session.add(cleaner_user)
-
-  # add a customer
-  customer_user = User(name='Bob',
-                surname='Dowie',
-                email='b@jt.com',
-                password=generate_password_hash('tina1234', method='sha256'))
-  db.session.add(customer_user)
-
-  db.session.commit()
-  return None
-
-############## END HELPER DUMMY FUNCTIONS
-
-
-
-# Start app
+#Start app
 if __name__ == '__main__':
   app.run(debug=True)

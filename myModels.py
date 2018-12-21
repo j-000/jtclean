@@ -80,15 +80,6 @@ class User(db.Model, UserMixin):
   def get_staffMemeber_details(self):
     return StaffMember.query.filter_by(user_id=self.id).all()
 
-  # def get_total_messages_to_user(self):
-  #   return len(Message.query.filter_by(to_user_id=self.id).all())
-
-  # def get_total_messages_from_user(self):
-  #   return len(Message.query.filter_by(from_user_id=self.id).all())
-
-  # def get_total_unread_messages_to_user(self):
-  #   return len(Message.query.filter_by(to_user_id=self.id, read=False).all())
-
 
 
 
@@ -144,6 +135,7 @@ class Booking(db.Model):
   service_id = db.Column(db.Integer)
   date_from = db.Column(db.String(25))
   date_to = db.Column(db.String(25))
+  address = db.Column(db.String(50))
   start_time = db.Column(db.String(10))
   duration = db.Column(db.Integer)
   amount_paid = db.Column(db.Float())
