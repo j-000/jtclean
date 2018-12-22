@@ -13,25 +13,48 @@
     {% endif %}
   {% endwith %}
   <!-- END FLASH MESSAGES -->
+
   <div class="row" style="padding: 0;">
-    <h1>TODO: add a form to search for a booking</h1>
+    <div class="col-md-12">
+       <form class="form-inline" id='#searchUser' action="#">
+        <input id='searchText' class="form-control" type="text" name="#" placeholder="Pesquise um booking..." onkeyup="search()">
+        <select class="form-control"  id='searchCol'>
+          <option value="0">ID</option>
+          <option value="1">Data Criado</option>
+          <option value="2">ID Utilizador</option>
+          <option value="3">Servico</option>
+          <option value="4">Tipo de Casa</option>
+          <option value="5">Estado</option>
+          <option value="6">Empregada</option>
+          <option value="7">Supervisora</option>
+        </select>
+      </form>
+    </div>
+  </div>
+  <div class="row" style="padding: 0;">
     <div class="col-md">
-      <table class="table">
+      <table class="table" id="table">
         <thead class="thead-dark">
           <tr>
             <th>ID</th>
+            <th>Data Criado</th>
             <th>ID Utilizador</th>
             <th>Servico</th>
+            <th>Tipo de casa</th>
             <th>Quantia Paga</th>
             <th>Estado</th>
+            <th>Empregada</th>
+            <th>Supervisora</th>
           </tr>
         </thead>
         <tbody>
           {% for booking in bookings_array %}
             <tr>
               <td><a href="{{ url_for('admin_booking', booking_id=booking.id) }}">{{ booking.id }}</a></td>
+              <td>{{ moment(booking.timestamp).calendar() }}</td>
               <td><a href="{{ url_for('admin_user', user_id=booking.user_id) }}">{{ booking.user_id }}</a></td>
               <td>{{ booking.get_booking_service().name }}</td>
+              <td>{{ booking.property_type }}</td>
               <td>{{ booking.amount_paid }}</td>
               <td>
                 {% if booking.completed %}
@@ -40,6 +63,8 @@
                 <span class="badge badge-danger">Incompleto</span>
                 {% endif %}
               </td>
+              <td>{{ booking.get_staff_member(booking.cleaner).name }}</td>
+              <td>{{ booking.get_staff_member(booking.supervisor).name }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -47,4 +72,31 @@
     </div>
   </div>
 </div>
+{% endblock %}
+{% block extrajs %}
+<script type="text/javascript">
+  function search(){
+    // Declare variables
+    var input, filter, table, tr, td, i, txtValue, searchCol, q;
+    input = document.getElementById("searchText");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("table");
+    tr = table.getElementsByTagName("tr");
+    searchCol = document.getElementById('searchCol');
+    q = searchCol.options[searchCol.selectedIndex].value;
+
+    // Loop through all table rows, and hide those who don't match the search query
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[q];
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+</script>
 {% endblock %}

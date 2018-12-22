@@ -30,8 +30,8 @@
             <td>{{ user.name }} {{ user.surname }}</td>
           </tr>
           <tr>
-            <td><strong>Bookings</strong></td>
-            <td>{{ user.get_total_bookings() }}</td>
+            <td><strong>Bookings Activos</strong></td>
+            <td>{{ current_user.get_total_active_bookings() }}</td>
           </tr>
           <tr>
             <td><strong>Total Pago</strong></td>
@@ -65,13 +65,22 @@
             <td><strong>Tipo de Utilizador</strong></td>
             <td>{{ user.get_user_role().name }}</td>
           </tr>
+          {% if user.is_staff() %}
+            <tr>
+              <td><strong>Tipo de Posto</strong></td>
+              <td>{{ user.get_staffMemeber_details().get_jobRole().name }}</td>
+            </tr>
+          {% endif %}
         </tbody>
       </table>
 
-      <form action="{{ url_for('admin_user', user_id=user.id) }}" method="POST">
+      <form id='form1' action="{{ url_for('admin_user', user_id=user.id) }}" method="POST">
         {{ form.hidden_tag() }}
         {{ wtf.form_field(form.role) }}
         {{ wtf.form_field(form.premium) }}
+        <div id="staffRole" style="display: none;">
+          {{ wtf.form_field(form.staffRole) }}
+        </div>
         <input type="submit" class="btn btn-default btn-md" value="Modificar">
       </form>
 
@@ -101,4 +110,17 @@
     </div>
   </div>
 </div>
+{% endblock %}
+{% block extrajs %}
+<script type="text/javascript">
+  $("#form1").change(function(){
+    var a = $('#formRoleSelect').val()
+    var b = $('#staffRole')
+    if(a == 2){
+      b.show();
+    }else{
+      b.hide();
+    }
+  })
+</script>
 {% endblock %}

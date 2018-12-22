@@ -14,13 +14,22 @@
   {% endwith %}
   <!-- END FLASH MESSAGES -->
   <div class="row" style="padding: 0;">
-    <div class="col-md">
-      <form action="{{ url_for('login') }}" method="POST">
-        {{ form.hidden_tag() }}
-        {{ wtf.form_field(form.search_field) }}
-        <input type="submit" class="btn btn-default btn-md" value="Entrar">
+    <div class="col-md-12">
+       <form class="form-inline" id='#searchUser' action="#">
+        <input id='searchText' class="form-control" type="text" name="#" placeholder="Pesquise um utilizador..." onkeyup="search()">
+        <select class="form-control"  id='searchCol'>
+          <option value="0">ID</option>
+          <option value="1">Nome</option>
+          <option value="2">Apelido</option>
+          <option value="3">Email</option>
+          <option value="4">Permissoes</option>
+        </select>
       </form>
-      <table class="table">
+    </div>
+  </div>
+  <div class="row" style="padding: 0;">
+    <div class="col-md">
+      <table class="table" id='table'>
         <thead class="thead-dark">
           <tr>
             <th>ID</th>
@@ -38,7 +47,11 @@
               <td>{{ user.name }}</td>
               <td>{{ user.surname }}</td>
               <td>{{ user.email }}</td>
-              <td>{{ user.get_user_role().name }}</td>
+              {% if user.is_staff() %}
+                <td>{{ user.get_user_role().name }} - {{ user.get_staffMemeber_details().get_jobRole().name }}</td>
+              {% else %}
+                <td>{{ user.get_user_role().name }}</td>
+              {% endif %}
               <td>
                 {% if user.premium %}
                 <span class="badge badge-success">Premium</span>
@@ -53,4 +66,31 @@
     </div>
   </div>
 </div>
+{% endblock %}
+{% block extrajs %}
+<script type="text/javascript">
+  function search(){
+    // Declare variables
+    var input, filter, table, tr, td, i, txtValue, searchCol, q;
+    input = document.getElementById("searchText");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("table");
+    tr = table.getElementsByTagName("tr");
+    searchCol = document.getElementById('searchCol');
+    q = searchCol.options[searchCol.selectedIndex].value;
+
+    // Loop through all table rows, and hide those who don't match the search query
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[q];
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+</script>
 {% endblock %}

@@ -544,13 +544,26 @@ def admin_services_list():
 def admin_user(user_id):
   if current_user.is_admin():
     user = User.query.filter_by(id=user_id).first()
-
+    role_staff_id = Role.query.filter_by(name='Staff').first().id
     if user:
       form = UpdateUserAccount(obj=user)
       roleChoices = [(i.id, i.name) for i in Role.query.all()]
       form.role.choices = roleChoices
+      form.staffRole.choices = [(i.id, i.name) for i in JobRole.query.all()]
 
       if request.method == 'POST' and form.validate_on_submit():
+        if form.role.data == role_staff_id:
+          find_staff = StaffMember.query.filter_by(user_id=user.id).first_or_404()
+          if find_staff:
+            update_staff = find_staff
+            update_staff.jobRole = form.staffRole.data
+          else:
+            add_user_as_staff = StaffMember(
+              user_id=user.id,
+              name=user.name,
+              jobRole=form.staffRole.data)
+            db.session.add(add_user_as_staff)
+
         user.role = form.role.data
         user.premium = form.premium.data
         db.session.commit()

@@ -23,8 +23,9 @@ class UpdateUser(FlaskForm):
 
 
 class UpdateUserAccount(FlaskForm):
-    role = SelectField('Tipo de utilizador', coerce=int)
+    role = SelectField('Tipo de utilizador', id='formRoleSelect', coerce=int)
     premium = BooleanField('Conta Premium?')
+    staffRole = SelectField('Posto de Staff', coerce=int)
 
 
 

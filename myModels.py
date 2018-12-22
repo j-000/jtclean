@@ -81,7 +81,7 @@ class User(db.Model, UserMixin):
     return len(messages)
 
   def get_staffMemeber_details(self):
-    return StaffMember.query.filter_by(user_id=self.id).all()
+    return StaffMember.query.filter_by(user_id=self.id).first()
 
 
 
@@ -168,15 +168,13 @@ class Booking(db.Model):
   def get_booking_service(self):
     return Service.query.filter_by(id=self.service_id).first()
 
-  def get_assignable_staff(self):
-    return Cleaner.query.filter_by(available=True).all()
-
-
-
-
-
-
-
+  def get_staff_member(self, staffID):
+    try:
+      s = StaffMember.query.filter_by(id=staffID).first().id
+      if s:
+        return User.query.filter_by(id=s).first()
+    except:
+      return None
 
 class BookingNote(db.Model):
   id = db.Column(db.Integer, primary_key=True)
