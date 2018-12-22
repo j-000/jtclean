@@ -29,7 +29,9 @@
             {% if current_user.get_total_unread_messages_for_booking(booking.id) > 0 %}
               <span class="badge badge-info">{{ current_user.get_total_unread_messages_for_booking(booking.id) }} mensagens novas</span>
             {% endif %}
+            <br>
             <p class="mb-1">A sua reserva encontra-se em lista de espera para ser aprovada. <br> Nao se preocupe, sera notificado.</p>
+            <br>
             <small>Mudou de ideias? Ainda esta a tempo.</small>
           </a>
         </div>

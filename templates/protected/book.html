@@ -26,44 +26,6 @@
         <input type="submit" class="btn btn-default btn-md" value="Agendar">
       </form>
     </div>
-    <!-- <div class="col-md-7">
-      <h4>Os meus servicos</h4>
-      <br>
-      <table class="table text-center table-sm">
-        <thead>
-          <tr>
-            <th>Booking ID</th>
-            <th>Tipo de Casa</th>
-            <th>Servico</th>
-            <th>De</th>
-            <th>A</th>
-            <th>Hora</th>
-            <th>Duracao</th>
-            <th>Pago</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for booking in current_user.get_user_bookings() %}
-          <tr>
-            <td>{{ booking.id }}</td>
-            <td>{{ booking.property_type }}</td>
-            <td>{{ booking.get_booking_service().name }}</td>
-            <td>{{ booking.date_from }}</td>
-            <td>{{ booking.date_to }}</td>
-            <td>{{ booking.start_time }}</td>
-            <td>{{ booking.duration }}</td>
-            <td>{{ booking.amount_paid }}</td>
-            {% if booking.completed %}
-            <td><span class="badge badge-success">Completo</span></td>
-            {% else %}
-            <td><span class="badge badge-info">Proximo</span></td>
-            {% endif %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div> -->
   </div>
 </div>
 

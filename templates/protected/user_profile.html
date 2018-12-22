@@ -14,13 +14,59 @@
       {% endif %}
     {% endwith %}
     <!-- END FLASH MESSAGES -->
+    <h4>O seu perfile</h4>
     <div class="row" style="padding: 0;">
-      <p>User is able to set favourite services</p><br>
-      <p>User is able to set express checkout</p><br>
-      <p>Imagem</p><br>
-      <p>Bio</p><br>
-      <p>Empresa</p><br>
-      <p>Morada</p><br>
+      <table class="table-bordered table-sm">
+        <tbody>
+          <tr>
+            <td><strong>Imagem / Logo</strong></td>
+            <td><img width="75" src="{{ url_for('static', filename='images/dashboard_o.svg') }}"></td>
+          </tr>
+          <tr>
+            <td><strong>Registo:</strong></td>
+            <td>{{ moment(current_user.timestamp).calendar() }} </td>
+          </tr>
+          <tr>
+            <td><strong>Conta confirmada:</strong></td>
+            {% if current_user.confirmed %}
+              <td><span class="badge-success badge">Sim</span></td>
+            {% else %}
+              <td><span class="badge-danger badge">Nao</span></td>
+            {% endif %}
+          </tr>
+          <tr>
+            <td><strong>Nome:</strong></td>
+            <td>{{ current_user.name }} {{ current_user.surname }}</td>
+          </tr>
+          <tr>
+            <td><strong>Empresa:</strong></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><strong>Morada Favorita:</strong></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><strong>Servicos favoritos:</strong></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><strong>Premium Ativo:</strong></td>
+            {% if current_user.premium %}
+              <td><span class="badge-success badge">Sim</span></td>
+            {% else %}
+              <td><span class="badge-danger badge">Nao</span></td>
+            {% endif %}
+          </tr>
+          <tr>
+            <td><strong>Metodo de pagamento:</strong></td>
+            <td></td>
+          </tr>
+          <tr>
+
+          </tr>
+        </tbody>
+      </table>
     </div>
 </div>
 {% endblock %}

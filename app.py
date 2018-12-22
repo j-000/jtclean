@@ -272,17 +272,7 @@ def open_booking(booking_id):
 
 
 
-# API route
-@app.route('/api/service/<service_id>', methods=['GET', 'POST'])
-@login_required
-def api_services(service_id):
-  try:
-    service = Service.query.filter_by(id=service_id).first()
-    response = str(service.price)
-  except Exception as e:
-    response = str(0)
 
-  return response
 
 
 
@@ -336,10 +326,20 @@ def logout():
 
 
 ################################# API ###########################################
+# API route PUBLIC
+@app.route('/api/service/<service_id>', methods=['GET', 'POST'])
+@login_required
+def api_services(service_id):
+  try:
+    service = Service.query.filter_by(id=service_id).first()
+    response = str(service.price)
+  except Exception as e:
+    response = str(0)
+
+  return response
 
 
-
-
+# API route PRIVATE
 @app.route('/api/admin/dashboard/', methods=['GET'])
 @login_required
 def api_admin_dashboard():

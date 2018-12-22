@@ -36,6 +36,9 @@ class User(db.Model, UserMixin):
   role = db.Column(db.Integer, default=1)
   premium = db.Column(db.Boolean(), default=False)
   confirmed = db.Column(db.Boolean(), default=False)
+  # payment_method_set // boolean
+  #
+
 
   def _ADMIN_get_total_bookings(self):
     if self.is_admin():
@@ -122,6 +125,10 @@ class JobRole(db.Model):
 
 
 
+class FavouriteService(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, unique=True)
+  service_id = db.Column(db.Integer())
 
 
 
@@ -139,7 +146,7 @@ class Booking(db.Model):
   start_time = db.Column(db.String(10))
   duration = db.Column(db.Integer)
   amount_paid = db.Column(db.Float())
-  comment = db.Column(db.Text()) # customer's coment
+  comment = db.Column(db.Text())
   confirmed = db.Column(db.Boolean(), default=False)
   confirmed_on = db.Column(db.DateTime, default=None)
   completed = db.Column(db.Boolean(), default=False)
@@ -226,11 +233,6 @@ class Activity(db.Model):
 
   def get_user_name(self):
     return User.query.filter_by(id=user_id).first()
-
-
-
-
-
 
 
 

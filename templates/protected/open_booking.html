@@ -19,9 +19,15 @@
     {% if booking.confirmed %}
       <div class="right-chevron card col-sm bg-success text-white text-bold bg-secondary border border-secondary">Confirmado</div>
     {% else %}
-      <div class="right-chevron card col-sm bg-success opacity bg-secondary border border-secondary">Confirmado</div>
+      <div class="right-chevron card col-sm opacity bg-secondary border border-secondary">Confirmado</div>
     {% endif %}
-    <div class="right-chevron card col-sm opacity bg-secondary border border-secondary">Cancelado / Concluido</div>
+
+    {% if booking.cancelled or booking.completed %}
+      <div class="right-chevron text-white card col-sm bg-success border border-secondary">Cancelado / Concluido</div>
+    {% else %}
+      <div class="right-chevron card col-sm opacity bg-secondary border border-secondary">Cancelado / Concluido</div>
+    {% endif %}
+
     <div class="last-chevron card col-sm opacity bg-secondary border border-secondary">Revisao</div>
   </div>
   <br>
