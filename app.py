@@ -14,7 +14,7 @@ from sqlalchemy import desc
 from myModels import app
 from itsdangerous import URLSafeTimedSerializer
 import requests
-
+from functools import wraps
 
 app.config.update(
   DEBUG=False,
@@ -73,6 +73,16 @@ def confirm_token(token, expiration=3600):
       return False
   return email
 
+
+def confirmed_account_required(fn):
+  @wraps(fn)
+  def wrapper(*args,**kwargs):
+    if not current_user.confirmed:
+      flash('Confirme a sua conta primeiro atraves do link enviado para o seu email.','danger')
+      return redirect(url_for('profile'))
+    else:
+      return fn(*args, **kwargs)
+  return wrapper
 
 
 
@@ -182,12 +192,14 @@ def profile():
 
 @app.route('/profile/services', methods=['GET'])
 @login_required
+@confirmed_account_required
 def new_booking():
   return render_template('protected/new_booking.html')
 
 
 @app.route('/profile/messages/<booking_id>', methods=['GET','POST'])
 @login_required
+@confirmed_account_required
 def messages(booking_id):
   messageForm = SendMessageForm()
   escaped_booking_id = escape(booking_id)
@@ -207,6 +219,7 @@ def messages(booking_id):
 # New booking route
 @app.route('/profile/services/book', methods=['GET','POST'])
 @login_required
+@confirmed_account_required
 def book():
   available_services = Service.query.filter_by(active=True).all()
   bookingForm = BookingForm()
@@ -236,12 +249,14 @@ def book():
 
 @app.route('/profile/services/my_bookings', methods=['GET'])
 @login_required
+@confirmed_account_required
 def my_bookings():
   return render_template('protected/mybookings.html')
 
 
 @app.route('/profile/services/my_bookings/<booking_id>', methods=['GET','POST'])
 @login_required
+@confirmed_account_required
 def open_booking(booking_id):
   escaped_booking_id = escape(booking_id)
   booking = Booking.query.filter_by(id=escaped_booking_id).first()
@@ -280,6 +295,7 @@ def open_booking(booking_id):
 # User Profile settings route
 @app.route('/profile/settings', methods=['GET','POST'])
 @login_required
+@confirmed_account_required
 def profile_settings():
   form = UpdateUser()
   if request.method == 'POST' and form.validate_on_submit():
@@ -304,6 +320,7 @@ def profile_settings():
 # Dashboard route
 @app.route('/profile/user', methods=['GET'])
 @login_required
+@confirmed_account_required
 def user_profile():
   return render_template('protected/user_profile.html')
 
@@ -312,6 +329,7 @@ def user_profile():
 # Dashboard route
 @app.route('/profile/dashboard', methods=['GET'])
 @login_required
+@confirmed_account_required
 def dashboard():
   return render_template('protected/dashboard.html')
 
