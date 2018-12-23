@@ -49,6 +49,9 @@ class User(db.Model, UserMixin):
   def get_user_role(self):
     return Role.query.filter_by(id=self.role).first()
 
+  def get_profile(self):
+    return UserProfile.query.filter_by(user_id=self.id).first()
+
   def is_admin(self):
     return self.role == Role.query.filter_by(name='Admin').first().id
 
@@ -125,15 +128,6 @@ class JobRole(db.Model):
 
 
 
-class FavouriteService(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, unique=True)
-  service_id = db.Column(db.Integer())
-
-
-
-
-
 class Booking(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -176,6 +170,7 @@ class Booking(db.Model):
     except:
       return None
 
+
 class BookingNote(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   booking_id = db.Column(db.Integer)
@@ -185,10 +180,6 @@ class BookingNote(db.Model):
 
   def get_note_user(self):
     return User.query.filter_by(id=self.user_id).first()
-
-
-
-
 
 
 
@@ -232,5 +223,15 @@ class Activity(db.Model):
   def get_user_name(self):
     return User.query.filter_by(id=user_id).first()
 
+
+
+class UserProfile(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, unique=True)
+  filename = db.Column(db.String(50), nullable=True)
+  company = db.Column(db.String(50),nullable=True)
+  address = db.Column(db.String(50), nullable=True)
+  post_code = db.Column(db.String(15), nullable=True)
+  favourite_services = db.Column(db.String(50),nullable=True)
 
 

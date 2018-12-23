@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, TextAreaField, DecimalField, SelectField, DateTimeField, TimeField, IntegerField, SelectMultipleField, DateField
+from wtforms import StringField, PasswordField, BooleanField, TextAreaField, DecimalField, SelectField, DateTimeField, TimeField, IntegerField, SelectMultipleField, DateField, FileField
 from wtforms.validators import InputRequired, Email, Length
-
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[InputRequired(), Email(message='Email invalido!')])
@@ -53,8 +52,6 @@ class BookingNotesForm(FlaskForm):
 
 
 
-
-
 class BookingUpdateForm(FlaskForm):
     service = SelectField('Servico', coerce=int)
     amount_paid = DecimalField('Nova Quantia')
@@ -66,7 +63,6 @@ class BookingUpdateForm(FlaskForm):
 
 
 
-
 class SendMessageForm(FlaskForm):
     message = TextAreaField('Mensagem:', validators=[InputRequired()])
 
@@ -74,3 +70,11 @@ class SendMessageForm(FlaskForm):
 class SearchForUserForm(FlaskForm):
     search_field = StringField('Pesquisar')
 
+
+
+class UpdateUserProfile(FlaskForm):
+    image = FileField('Imagem / Logo')
+    company = StringField('Nome da empresa')
+    address = StringField('Morada')
+    postcode = StringField('Codigo-Postal')
+    favourite_services = SelectMultipleField('Servicos Favoritos', coerce=int)

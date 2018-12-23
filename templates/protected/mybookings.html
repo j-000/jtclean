@@ -51,9 +51,10 @@
             </div>
             {% if current_user.get_total_unread_messages_for_booking(booking.id) > 0 %}
               <span class="badge badge-info">{{ current_user.get_total_unread_messages_for_booking(booking.id) }} mensagens novas</span>
-            {% endif %}
-            <p class="mb-1">A sua reserva sera aprovada dentro de momentos. Sera notificado assim que um dos nossos assistentes reveja a reserva.</p>
-            <small>Mudou de ideias?  Ainda esta a tempo.</small>
+            {% endif %}<br>
+            <p class="mb-1"><span class="badge-success badge">A sua reserva foi aceite!</span></p><br>
+            <p class="mb-1">Comunique connosco atraves do chat da reserva.</p>
+            <small>Clique para abrir e ver a sua reserva</small>
           </a>
         </div>
         {% endif %}

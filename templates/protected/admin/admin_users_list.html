@@ -44,7 +44,7 @@
         <tbody>
           {% for user in users_array %}
             <tr>
-              <td><a  href="{{ url_for('admin_user', user_id=user.id) }}">{{ user.id }}</a></td>
+              <td><a  href="{{ url_for('admin_user', user_id=user.id) }}">#U-{{ user.id }}</a></td>
               <td>{{ user.name }}</td>
               <td>{{ user.surname }}</td>
               <td>{{ user.email }}</td>

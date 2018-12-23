@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount, SearchForUserForm
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount, SearchForUserForm, UpdateUserProfile
 import datetime
 from datetime import date, timedelta
 import json
@@ -15,6 +15,15 @@ from myModels import app
 from itsdangerous import URLSafeTimedSerializer
 import requests
 from functools import wraps
+from werkzeug.utils import secure_filename
+import os
+import uuid
+
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = THIS_FOLDER + '/static/images/uploads/'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'svg'])
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 app.config.update(
   DEBUG=False,
@@ -34,7 +43,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 moment = Moment(app)
-from myModels import db, Role, User, StaffMember, JobRole, Booking, BookingNote, Service, Message
+from myModels import db, Role, User, StaffMember, JobRole, Booking, BookingNote, Service, Message, UserProfile
 
 # USER LOADER
 @login_manager.user_loader
@@ -316,13 +325,42 @@ def profile_settings():
     return render_template('protected/profile_settings.html', form=form)
 
 
+def allowed_file(filename):
+  return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Dashboard route
-@app.route('/profile/user', methods=['GET'])
+@app.route('/profile/user', methods=['GET','POST'])
 @login_required
 @confirmed_account_required
 def user_profile():
-  return render_template('protected/user_profile.html')
+  form = UpdateUserProfile()
+  form.favourite_services.choices = [(i.id, i.name) for i in Service.query.all()]
+
+  if request.method == 'POST' and form.validate_on_submit():
+
+    file = request.files['image']
+    if file and allowed_file(file.filename):
+      filename = str(uuid.uuid4())[:6] + secure_filename(file.filename)
+      file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+      user_profile_exists = UserProfile.query.filter_by(user_id=current_user.id).first()
+      if user_profile_exists:
+        flash('A sua imagem ja existe. Contacte suporte para alterar.')
+      else:
+        new_profile = UserProfile(
+          user_id=current_user.id,
+          filename=filename,
+          company = form.company.data,
+          address=form.address.data,
+          post_code=form.postcode.data,
+          favourite_services=str(form.favourite_services.data))
+        db.session.add(new_profile)
+        db.session.commit()
+
+    flash('Perfile modificado com sucesso.','success')
+    return redirect(url_for('user_profile'))
+
+  return render_template('protected/user_profile.html', form=form)
 
 
 

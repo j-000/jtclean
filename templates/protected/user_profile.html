@@ -15,58 +15,84 @@
     {% endwith %}
     <!-- END FLASH MESSAGES -->
     <h4>O seu perfile</h4>
+    <br>
     <div class="row" style="padding: 0;">
-      <table class="table-bordered table-sm">
-        <tbody>
-          <tr>
-            <td><strong>Imagem / Logo</strong></td>
-            <td><img width="75" src="{{ url_for('static', filename='images/dashboard_o.svg') }}"></td>
-          </tr>
-          <tr>
-            <td><strong>Registo:</strong></td>
-            <td>{{ moment(current_user.timestamp).calendar() }} </td>
-          </tr>
-          <tr>
-            <td><strong>Conta confirmada:</strong></td>
-            {% if current_user.confirmed %}
-              <td><span class="badge-success badge">Sim</span></td>
-            {% else %}
-              <td><span class="badge-danger badge">Nao</span></td>
-            {% endif %}
-          </tr>
-          <tr>
-            <td><strong>Nome:</strong></td>
-            <td>{{ current_user.name }} {{ current_user.surname }}</td>
-          </tr>
-          <tr>
-            <td><strong>Empresa:</strong></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td><strong>Morada Favorita:</strong></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td><strong>Servicos favoritos:</strong></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td><strong>Premium Ativo:</strong></td>
-            {% if current_user.premium %}
-              <td><span class="badge-success badge">Sim</span></td>
-            {% else %}
-              <td><span class="badge-danger badge">Nao</span></td>
-            {% endif %}
-          </tr>
-          <tr>
-            <td><strong>Metodo de pagamento:</strong></td>
-            <td></td>
-          </tr>
-          <tr>
+      <div class="col-md-6">
+        <table class="table-bordered table-sm">
+          <tbody>
+            <tr>
+              <td><strong>Imagem / Logo</strong></td>
+              {% if current_user.get_profile() %}
+                <td><img height="120" src="{{ url_for('static', filename='images/uploads/' + current_user.get_profile().filename) }}"></td>
+              {% else %}
+                <td>Adicione uma imagem</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <td><strong>Registo:</strong></td>
+              <td>{{ moment(current_user.timestamp).calendar() }} </td>
+            </tr>
+            <tr>
+              <td><strong>Conta confirmada:</strong></td>
+              {% if current_user.confirmed %}
+                <td><span class="badge-success badge">Sim</span></td>
+              {% else %}
+                <td><span class="badge-danger badge">Nao</span></td>
+              {% endif %}
+            </tr>
+            <tr>
+              <td><strong>Nome:</strong></td>
+              <td>{{ current_user.name }} {{ current_user.surname }}</td>
+            </tr>
+            <tr>
+              <td><strong>Empresa:</strong></td>
+              {% if current_user.get_profile() %}
+                <td>{{ current_user.get_profile().company }}</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <td><strong>Morada Favorita:</strong></td>
+              {% if current_user.get_profile() %}
+                <td>{{ current_user.get_profile().address }}</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <td><strong>Servicos favoritos:</strong></td>
+              {% if current_user.get_profile() %}
+                <td>{{ current_user.get_profile().favourite_services }}</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <td><strong>Premium Ativo:</strong></td>
+              {% if current_user.premium %}
+                <td><span class="badge-success badge">Sim</span></td>
+              {% else %}
+                <td><span class="badge-danger badge">Nao</span></td>
+              {% endif %}
+            </tr>
+            <tr>
+              <td><strong>Metodo de pagamento:</strong></td>
+              <td></td>
+            </tr>
+            <tr>
 
-          </tr>
-        </tbody>
-      </table>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <form enctype=multipart/form-data method="POST" action="{{ url_for('user_profile') }}">
+          {{ form.hidden_tag() }}
+          {{ wtf.form_field(form.image) }}
+          {{ wtf.form_field(form.company) }}
+          {{ wtf.form_field(form.address) }}
+          {{ wtf.form_field(form.postcode) }}
+          {{ wtf.form_field(form.favourite_services) }}
+          <small>Pressione a tecla CTRL e clique em varios servicos.</small>
+          <br>
+          <input class="btn btn-default btn-md"  type="submit" value="Modificar" name="updateProfile">
+        </form>
+      </div>
     </div>
 </div>
 {% endblock %}
