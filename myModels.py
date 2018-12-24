@@ -248,6 +248,6 @@ class UserProfile(db.Model):
   company = db.Column(db.String(50),nullable=True)
   address = db.Column(db.String(50), nullable=True)
   post_code = db.Column(db.String(15), nullable=True)
-  favourite_services = db.Column(db.String(50),nullable=True)
+  favourite_services = db.Column(db.String(50), nullable=True)
 
 

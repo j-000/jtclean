@@ -9,7 +9,7 @@
       <br>
       <div id="accordion">
         <h5 class="accordion-toggle">Nao me lembro da minha palavra passe</h5>
-        <div class="accordion-content">
+        <div class="accordion-content" style="display: none;">
           <p>Siga os passos abaixo:<br>
              1) Insira o seu email (o mesmo email com que se registou) e clique em "enviar".<br>
              2) Clique no link que foi enviado para o seu email e defina uma password nova para a sua conta.
@@ -21,11 +21,11 @@
           </form>
         </div>
         <h5 class="accordion-toggle">Accordion 2</h5>
-        <div class="accordion-content">
+        <div class="accordion-content" style="display: none;">
           <p>Lorem ipsum dolor sit amet mauris eu turpis.</p>
         </div>
         <h5 class="accordion-toggle">Accordion 3</h5>
-        <div class="accordion-content">
+        <div class="accordion-content" style="display: none;">
           <p>Vivamus facilisisnibh scelerisque laoreet.</p>
         </div>
       </div>
@@ -38,6 +38,7 @@
   $(document).ready(function($) {
     $(".accordion-content").slideUp('fast');
     $('#accordion').find('.accordion-toggle').click(function(){
+      $(this).show();
       $(this).next().slideToggle('fast');
     });
   });

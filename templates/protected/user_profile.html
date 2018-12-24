@@ -14,19 +14,15 @@
       {% endif %}
     {% endwith %}
     <!-- END FLASH MESSAGES -->
-    <h4>O seu perfile</h4>
+    <h4>O meu perfile</h4>
     <br>
     <div class="row" style="padding: 0;">
       <div class="col-md-6">
-        <table class="table-bordered table-sm">
+        <table class="table-bordeless table-sm">
           <tbody>
             <tr>
-              <td><strong>Imagem / Logo</strong></td>
-              {% if current_user.get_profile() %}
-                <td><img height="120" src="{{ url_for('static', filename='images/uploads/' + current_user.get_profile().filename) }}"></td>
-              {% else %}
-                <td>Adicione uma imagem</td>
-              {% endif %}
+              <td><strong>Referencia de utilizador:</strong></td>
+              <td>JT{{ current_user.id }}</td>
             </tr>
             <tr>
               <td><strong>Registo:</strong></td>
@@ -57,6 +53,12 @@
               {% endif %}
             </tr>
             <tr>
+              <td><strong>Codigo postal:</strong></td>
+              {% if current_user.get_profile() %}
+                <td>{{ current_user.get_profile().post_code }}</td>
+              {% endif %}
+            </tr>
+            <tr>
               <td><strong>Servicos favoritos:</strong></td>
               {% if current_user.get_profile() %}
                 <td>{{ current_user.get_profile().favourite_services }}</td>
@@ -81,18 +83,42 @@
         </table>
       </div>
       <div class="col-md-6">
-        <form enctype=multipart/form-data method="POST" action="{{ url_for('user_profile') }}">
-          {{ form.hidden_tag() }}
-          {{ wtf.form_field(form.image) }}
-          {{ wtf.form_field(form.company) }}
-          {{ wtf.form_field(form.address) }}
-          {{ wtf.form_field(form.postcode) }}
-          {{ wtf.form_field(form.favourite_services) }}
-          <small>Pressione a tecla CTRL e clique em varios servicos.</small>
-          <br>
-          <input class="btn btn-default btn-md"  type="submit" value="Modificar" name="updateProfile">
-        </form>
+        <div id="accordion">
+          <li class="accordion-toggle list-group-item"><strong>Modificar o perfile</strong></li>
+          <div class="accordion-content" style="display: none;">
+            <form method="POST" action="{{ url_for('user_profile') }}">
+              {{ form.hidden_tag() }}
+              {{ wtf.form_field(form.company) }}
+              {{ wtf.form_field(form.address) }}
+              {{ wtf.form_field(form.post_code) }}
+              {{ wtf.form_field(form.favourite_services) }}
+              <small>Pressione a tecla CTRL e clique em varios servicos.</small>
+              <br>
+              <input class="btn btn-default btn-md"  type="submit" value="Modificar" name="updateProfile">
+            </form>
+          </div>
+          <li class="accordion-toggle list-group-item"><strong>AAA</strong></li>
+          <div class="accordion-content" style="display: none;">
+            <p>BBB</p>
+          </div>
+          <li class="accordion-toggle list-group-item"><strong>CCC</strong></li>
+          <div class="accordion-content" style="display: none;">
+            <p>DDD</p>
+          </div>
+        </div>
       </div>
     </div>
 </div>
+{% endblock %}
+{% block extrajs %}
+<script type="text/javascript">
+  $(document).ready(function($) {
+    $(".accordion-content").slideUp('fast');
+    $('#accordion').find('.accordion-toggle').click(function(){
+      $(this).show();
+      $(this).toggleClass('active');
+      $(this).next().slideToggle('fast');
+    });
+  });
+</script>
 {% endblock %}

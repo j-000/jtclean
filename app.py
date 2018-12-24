@@ -21,11 +21,16 @@ import uuid
 from threading import Thread
 
 # File uploads
-THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = THIS_FOLDER + '/static/images/uploads/'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'svg'])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
+# THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+# UPLOAD_FOLDER = THIS_FOLDER + '/static/images/uploads/'
+# ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'svg'])
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# file = request.files['image']
+    # if file and allowed_file(file.filename):
+    #   filename = str(uuid.uuid4())[:6] + secure_filename(file.filename)
+#     #   file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+# def allowed_file(filename):
+#   return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 app.config.update(
   DEBUG=False,
@@ -143,8 +148,6 @@ def registo():
       return render_template('public/registo.html', form=form)
 
 
-
-
 @app.route('/confirm_email/<token>')
 @login_required
 def confirm_email(token):
@@ -171,8 +174,6 @@ def confirm_email(token):
                 email_html=html)
 
   return redirect(url_for('profile'))
-
-
 
 
 # Login route
@@ -349,13 +350,6 @@ def open_booking(booking_id):
     return redirect(url_for('my_bookings'))
 
 
-
-
-
-
-
-
-
 # User Profile settings route
 @app.route('/profile/settings', methods=['GET','POST'])
 @login_required
@@ -380,37 +374,34 @@ def profile_settings():
     return render_template('protected/profile_settings.html', form=form)
 
 
-def allowed_file(filename):
-  return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # Dashboard route
 @app.route('/profile/user', methods=['GET','POST'])
 @login_required
 @confirmed_account_required
 def user_profile():
-  form = UpdateUserProfile()
-  form.favourite_services.choices = [(i.id, i.name) for i in Service.query.all()]
+  form = UpdateUserProfile(obj=UserProfile.query.filter_by(user_id=current_user.id).first_or_404())
+  form.favourite_services.choices = [(i.id, str(i.id) + ') ' + i.name) for i in Service.query.all()]
 
   if request.method == 'POST' and form.validate_on_submit():
 
-    file = request.files['image']
-    if file and allowed_file(file.filename):
-      filename = str(uuid.uuid4())[:6] + secure_filename(file.filename)
-      file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-      user_profile_exists = UserProfile.query.filter_by(user_id=current_user.id).first()
-      if user_profile_exists:
-        flash('A sua imagem ja existe. Contacte suporte para alterar.')
-      else:
-        new_profile = UserProfile(
-          user_id=current_user.id,
-          filename=filename,
-          company = form.company.data,
-          address=form.address.data,
-          post_code=form.postcode.data,
-          favourite_services=str(form.favourite_services.data))
-        db.session.add(new_profile)
-        db.session.commit()
+    profile_exists = UserProfile.query.filter_by(user_id=current_user.id).first()
+    if profile_exists:
+      profile_exists.company = form.company.data
+      profile_exists.address = form.address.data
+      profile_exists.post_code = form.post_code.data
+      profile_exists.favourite_services = str(form.favourite_services.data)
+      db.session.commit()
+    else:
+      new_profile = UserProfile(
+        user_id=current_user.id,
+        company = form.company.data,
+        address=form.address.data,
+        post_code=form.post_code.data,
+        favourite_services=str(form.favourite_services.data))
+      db.session.add(new_profile)
+      db.session.commit()
 
     flash('Perfile modificado com sucesso.','success')
     return redirect(url_for('user_profile'))

@@ -86,8 +86,7 @@ class SearchForUserForm(FlaskForm):
 
 
 class UpdateUserProfile(FlaskForm):
-    image = FileField('Imagem / Logo')
     company = StringField('Nome da empresa')
     address = StringField('Morada')
-    postcode = StringField('Codigo-Postal')
+    post_code = StringField('Codigo-Postal')
     favourite_services = SelectMultipleField('Servicos Favoritos', coerce=int)
