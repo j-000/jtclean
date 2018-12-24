@@ -19,6 +19,7 @@ from werkzeug.utils import secure_filename
 import os
 import uuid
 
+# File uploads
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = THIS_FOLDER + '/static/images/uploads/'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'svg'])
@@ -64,7 +65,6 @@ def sendEmail(email_subject,recipients, email_text=None, email_html=None):
   return True
 
 
-
 def generate_confirmation_token(email):
   serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
   return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
@@ -83,6 +83,7 @@ def confirm_token(token, expiration=3600):
   return email
 
 
+# custom decorator to ensure accounts are confirmed
 def confirmed_account_required(fn):
   @wraps(fn)
   def wrapper(*args,**kwargs):
@@ -94,8 +95,6 @@ def confirmed_account_required(fn):
   return wrapper
 
 
-
-
 # ROUTES
 # Index route - main page
 @app.route('/')
@@ -103,7 +102,6 @@ def confirmed_account_required(fn):
 @app.route('/index')
 def index():
   return render_template('public/index.html')
-
 
 
 # Registration route
@@ -114,6 +112,9 @@ def registo():
   else:
     form = RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
+      if form.password.data != form.password2.data:
+        flash('As palavras passe nao sao identicas. Faca o registo de novo.','danger')
+        return redirect(url_for('registo'))
       hashed_password = generate_password_hash(form.password.data, method='sha256')
       new_user = User(
               name = escape(form.name.data),
@@ -133,6 +134,7 @@ def registo():
       return redirect(url_for('login'))
     else:
       return render_template('public/registo.html', form=form)
+
 
 
 

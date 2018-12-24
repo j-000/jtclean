@@ -11,8 +11,17 @@ class RegisterForm(FlaskForm):
     name  = StringField('Nome / Empresa', validators=[InputRequired()])
     surname = StringField('Apelido (Opcional)')
     email = StringField('Email', validators=[InputRequired(), Email(message='Email invalido!')])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
-    password2 = PasswordField('Confirme Password', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+    password = PasswordField('Password', id='p1', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+    password2 = PasswordField('Confirme Password', id='p2', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+
+
+
+
+
+
+
+
+
 
 
 class UpdateUser(FlaskForm):
