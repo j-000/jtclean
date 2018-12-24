@@ -15,9 +15,13 @@ class RegisterForm(FlaskForm):
     password2 = PasswordField('Confirme Password', id='p2', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
 
 
+class RecoverPasswordForm(FlaskForm):
+    email = StringField('O seu email', validators=[InputRequired(), Email(message='Email invalido!')])
 
 
-
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Nova palavra passe', id='p1', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
+    password2 = PasswordField('Confirme a nova palavra passe', id='p2', validators=[InputRequired(), Length(min=6, max=40, message='Escolha uma palavra passe com pelo menos 6 letras, numeros e simbolos.')])
 
 
 

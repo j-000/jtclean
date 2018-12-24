@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import login_required, current_user, LoginManager, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount, SearchForUserForm, UpdateUserProfile
+from forms import LoginForm, RegisterForm, BookingForm, BookingNotesForm, BookingUpdateForm, ServiceForm, SendMessageForm, UpdateUser, UpdateUserAccount, SearchForUserForm, UpdateUserProfile,RecoverPasswordForm, ResetPasswordForm
 import datetime
 from datetime import date, timedelta
 import json
@@ -18,6 +18,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 import os
 import uuid
+from threading import Thread
 
 # File uploads
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -57,12 +58,18 @@ def unauthorized():
   return redirect(url_for('login', next=request.url))
 
 
-def sendEmail(email_subject,recipients, email_text=None, email_html=None):
+def send_async_email(app, msg):
+  with app.app_context():
+    mail.send(msg)
+
+
+def sendEmail(email_subject, recipients, email_text=None, email_html=None):
   msg = MailMessage(email_subject, recipients=recipients)
   msg.body = email_text
   msg.html = email_html
-  mail.send(msg)
-  return True
+  Thread(target=send_async_email, args=(app, msg)).start()
+
+
 
 
 def generate_confirmation_token(email):
@@ -189,6 +196,52 @@ def login():
     else:
       return render_template('public/login.html', form=form)
 
+
+@app.route('/help', methods=['GET', 'POST'])
+def help():
+  recover_password_form = RecoverPasswordForm()
+  if request.method == 'POST' and recover_password_form.validate_on_submit():
+    email = escape(recover_password_form.email.data)
+    user = User.query.filter_by(email=email).first()
+    if user:
+      recover_token = user.get_recover_password_token()
+      url = url_for('recover_password', recover_token=recover_token, _external=True)
+      html = render_template('email_templates/reset_password.html', confirm_url=url)
+      sendEmail(email_subject='Reponha a sua palavra passe',
+                recipients=[email],
+                email_html=html)
+
+      flash('Foi enviado um email com instrucoes para repor a sua palavra passe.','info')
+    else:
+      flash('Esse email nao se encontra registado','info')
+    return redirect(url_for('login'))
+
+  return render_template('public/help.html', form=recover_password_form)
+
+
+@app.route('/recover_password/<recover_token>', methods=['GET','POST'])
+def recover_password(recover_token):
+  if current_user.is_authenticated:
+    return redirect(url_for('profile'))
+
+  user = User.verify_reset_password_token(recover_token)
+  if not user:
+    flash('O link para recuperar a palavra passe e invalido ou expirou.', 'info')
+    return redirect(url_for('login'))
+
+  form = ResetPasswordForm()
+  if request.method == 'POST' and form.validate_on_submit():
+    if form.password.data != form.password2.data:
+      flash('As palavras passe nao sao identicas. Tente de novo.','danger')
+      return redirect(url_for('login'))
+
+    hashed_password = generate_password_hash(form.password.data, method='sha256')
+    user.password = hashed_password
+    db.session.commit()
+    flash('A sua palavra passe foi alterada com sucesso. Entre na sua conta.', 'success')
+    return redirect(url_for('login'))
+
+  return render_template('public/reset_password.html',form=form, token=recover_token)
 
 
 # Profile route
