@@ -20,17 +20,27 @@
           <h5 class="mb-1">Servicos Agendados</h5>
         </div>
         <br>
-        <img width="75" src="{{ url_for('static', filename='images/new_booking.svg') }}">
+        <div class="row" style="padding: 0;">
+          <div class="col-md"><span class="badge badge-warning">Em espera</span></div>
+          <div class="col-md">{{ current_user.get_user_confirmed_bookings(confirmed=False) }}</div>
+        </div>
+        <br>
+        <div class="row" style="padding: 0;">
+          <div class="col-md"><span class="badge badge-success">Confirmados</span></div>
+          <div class="col-md">{{ current_user.get_user_confirmed_bookings(confirmed=True) }}</div>
+        </div>
       </a>
     </div>
     <div class="col-md-4">
-      <a href="javascript:void(0)" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
+      <a href="{{ url_for('historical_bookings') }}" class="list-group-item-custom list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Historial de servicos</h5>
         </div>
         <br>
-        <img width="75" src="{{ url_for('static', filename='images/new_booking.svg') }}">
-        <small><strong></strong></small>
+        <div class="row" style="padding: 0;">
+          <div class="col-md"><span class="badge badge-secondary">Arquivados</span></div>
+          <div class="col-md">{{ current_user.get_total_active_bookings(completed=True) }}</div>
+        </div>
       </a>
     </div>
   </div>

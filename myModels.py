@@ -13,15 +13,34 @@ app.config['SECRET_KEY'] = 'r25hetAJAOWEHH2829292DJDOFUSODFUOSDJFweewefe515615'
 app.config['SECURITY_PASSWORD_SALT'] = 'r25hetAJAOWEHH2829292DJDOFUSODFUOSDJFweewefe515615'
 db = SQLAlchemy(app)
 
-class Role(db.Model):
+class SystemRole(db.Model):
   ''' ID
       1 - User - Cliente or Company
       2 - Staff - Empregado/a, Supervisora, Manager
       3 - Admin - Administrador
+      4 - Custom - Custom roles
   '''
   id = db.Column(db.Integer, primary_key=True)
   active = db.Column(db.Boolean(), default=True)
-  name = db.Column(db.String(20), unique=True)
+  name = db.Column(db.String(20), unique=True, nullable=False)
+
+  def get_role_rights(self):
+    return SystemRights.query.filter_by(system_role_id=self.id).all()
+
+
+
+class SystemRights(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    active = db.Column(db.Boolean(), default=True)
+    system_role_id = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    description = db.Column(db.Text(), nullable=False)
+
+
+
+
+
+
 
 
 
@@ -38,8 +57,6 @@ class User(db.Model, UserMixin):
   premium = db.Column(db.Boolean(), default=False)
   confirmed = db.Column(db.Boolean(), default=False)
   # payment_method_set // boolean
-  #
-
 
   def get_recover_password_token(self, expires_in=600):
     return jwt.encode(
@@ -54,31 +71,42 @@ class User(db.Model, UserMixin):
         return
     return User.query.get(id)
 
-
-
-  def _ADMIN_get_total_bookings(self):
-    if self.is_admin():
-      return len(Booking.query.filter_by(completed=False).all())
-    else:
-      return None
-
   def get_user_role(self):
-    return Role.query.filter_by(id=self.role).first()
+    return SystemRole.query.filter_by(id=self.role).first()
 
   def get_profile(self):
     return UserProfile.query.filter_by(user_id=self.id).first()
 
   def is_admin(self):
-    return self.role == Role.query.filter_by(name='Admin').first().id
+    return self.role == SystemRole.query.filter_by(name='Admin').first().id
 
   def is_staff(self):
-    return self.role == Role.query.filter_by(name='Staff').first().id
+    return self.role == SystemRole.query.filter_by(name='Staff').first().id
+
+  def get_staffMemeber_details(self):
+    return StaffMember.query.filter_by(user_id=self.id).first()
 
   def get_user_bookings(self):
     return Booking.query.filter_by(user_id=self.id).all()
 
-  def get_total_active_bookings(self):
-    return len(Booking.query.filter_by(user_id=self.id, completed=False).all())
+  def get_user_confirmed_bookings(self, confirmed=True):
+    ''' change "confirmed" to False for negation '''
+    return len(Booking.query.filter_by(user_id=self.id, confirmed=confirmed).all())
+
+
+  def get_total_active_bookings(self, completed=False):
+    ''' change "completed" to True for negation '''
+    return len(Booking.query.filter_by(user_id=self.id, completed=completed).all())
+
+  def get_all_messages_for_booking(self, booking_id):
+    messages = Message.query.filter_by(booking_id=booking_id).order_by(Message.timestamp.asc()).all()
+    return messages
+
+  def get_total_unread_messages_for_booking(self, booking_id):
+    messages = Message.query.filter_by(read=False, booking_id=booking_id).all()
+    return len(messages)
+
+
 
   def get_total_paid(self):
     total = 0
@@ -91,16 +119,9 @@ class User(db.Model, UserMixin):
     vat = total - ( total / 1.2 )
     return round(vat, 2)
 
-  def get_all_messages_for_booking(self, booking_id):
-    messages = Message.query.filter_by(booking_id=booking_id).order_by(Message.timestamp.asc()).all()
-    return messages
 
-  def get_total_unread_messages_for_booking(self, booking_id):
-    messages = Message.query.filter_by(read=False, booking_id=booking_id).all()
-    return len(messages)
 
-  def get_staffMemeber_details(self):
-    return StaffMember.query.filter_by(user_id=self.id).first()
+
 
 
 

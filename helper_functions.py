@@ -1,21 +1,46 @@
-from app import db, Role, JobRole, StaffMember, User, generate_password_hash
+from app import db, SystemRole, JobRole, StaffMember, User, generate_password_hash, SystemRights
 
 
 def drop_all_tables():
   db.drop_all()
   return None
 
+
 def create_all_tables():
   db.create_all()
   return None
 
-def create_account_roles():
-  a = Role(name='User')
-  b = Role(name='Staff')
-  c = Role(name='Admin')
+
+def create_system_roles():
+  a = SystemRole(name='User')
+  b = SystemRole(name='Staff')
+  c = SystemRole(name='Admin')
   db.session.add_all([a,b,c])
   db.session.commit()
   return None
+
+
+def create_system_rights():
+  user_role_id = SystemRole.query.filter_by(name='User').first().id
+  staff_role_id = SystemRole.query.filter_by(name='Staff').first().id
+  admin_role_id = SystemRole.query.filter_by(name='Admin').first().id
+  custom_role_id = SystemRole.query.filter_by(name='Custom').first().id
+
+  a = SystemRights(
+        system_role_id=admin_role_id,
+        name='ADMIN:NO RESTRICTIONS',
+        description='Admin / developer - no restrictions on the system.')
+
+  return None
+
+
+
+
+
+
+
+
+
 
 
 def create_job_roles():

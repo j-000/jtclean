@@ -50,7 +50,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 moment = Moment(app)
-from myModels import db, Role, User, StaffMember, JobRole, Booking, BookingNote, Service, Message, UserProfile
+from myModels import db, SystemRole, User, StaffMember, JobRole, Booking, BookingNote, Service, Message, UserProfile, SystemRights
 
 # USER LOADER
 @login_manager.user_loader
@@ -135,6 +135,11 @@ def registo():
               password = hashed_password)
       db.session.add(new_user)
       db.session.commit()
+
+      new_profile = UserProfile(user_id=User.query.filter_by(email=escape(form.email.data)).first().id)
+      db.session.add(new_profile)
+      db.session.commit()
+
       token = generate_confirmation_token(escape(form.email.data))
       url = url_for('confirm_email', token=token, _external=True)
       html = render_template('email_templates/welcome_email.html', confirm_url=url)
@@ -287,25 +292,46 @@ def messages(booking_id):
 @confirmed_account_required
 def book():
   available_services = Service.query.filter_by(active=True).all()
-  bookingForm = BookingForm()
+  user_profile = UserProfile.query.filter_by(user_id=current_user.id).first()
+
+  # user default settings
+  if user_profile:
+    bookingForm = BookingForm(obj=user_profile)
+  else:
+    bookingForm = BookingForm()
+
   choices = [(0,'Escolha um servico')] + [(i.id, i.name) for i in available_services]
   bookingForm.service.choices = choices
   if request.method == 'POST' and bookingForm.validate_on_submit():
     service_price = Service.query.filter_by(id=escape(bookingForm.service.data)).first().price
     new_booking = Booking(
-                  user_id = current_user.id,
-                  property_type = escape(bookingForm.propertyType.data),
-                  service_id = escape(bookingForm.service.data),
-                  date_from = escape(bookingForm.date_from.data),
-                  date_to = escape(bookingForm.date_to.data),
-                  address = escape(bookingForm.address.data),
-                  start_time = escape(bookingForm.time.data),
-                  duration = escape(bookingForm.duration.data),
-                  amount_paid = service_price,
-                  comment = escape(bookingForm.comments.data))
+      user_id = current_user.id,
+      property_type = escape(bookingForm.propertyType.data),
+      service_id = escape(bookingForm.service.data),
+      date_from = escape(bookingForm.date_from.data),
+      date_to = escape(bookingForm.date_to.data),
+      address = escape(bookingForm.address.data),
+      start_time = escape(bookingForm.time.data),
+      duration = escape(bookingForm.duration.data),
+      amount_paid = service_price,
+      comment = escape(bookingForm.comments.data))
     db.session.add(new_booking)
     db.session.commit()
-    flash('A sua limpeza foi agendada com sucesso!', 'success')
+
+    # refactor this to an object to be user on the template... booking.property_type..
+    html = render_template('email_templates/new_booking.html',
+      property_type=escape(bookingForm.propertyType.data),
+      date_from=escape(bookingForm.date_from.data),
+      date_to=escape(bookingForm.date_to.data),
+      address = escape(bookingForm.address.data),
+      start_time = escape(bookingForm.time.data),
+      duration = escape(bookingForm.duration.data),
+      amount_paid = service_price,
+      comment = escape(bookingForm.comments.data))
+    sendEmail(email_subject='[JTClean] - A sua limpeza esta a ser approvada',
+                recipients=[current_user.email],
+                email_html=html)
+    flash('A sua limpeza foi agendada com sucesso! Recebera um email dentro de momentos com os detalhes todos.', 'success')
     return redirect(url_for('my_bookings'))
   else:
     return render_template('protected/book.html', form=bookingForm)
@@ -317,6 +343,13 @@ def book():
 @confirmed_account_required
 def my_bookings():
   return render_template('protected/mybookings.html')
+
+
+@app.route('/profile/services/historical_bookings')
+@login_required
+@confirmed_account_required
+def historical_bookings():
+  return render_template('protected/historical_bookings.html')
 
 
 @app.route('/profile/services/my_bookings/<booking_id>', methods=['GET','POST'])
@@ -559,6 +592,8 @@ def api_admin_dashboard():
 
 ##################################ADMIN ROUTES##################################
 
+
+
 # Admin route for Admin users
 @app.route('/admin', methods=['GET'])
 @login_required
@@ -646,10 +681,10 @@ def admin_services_list():
 def admin_user(user_id):
   if current_user.is_admin():
     user = User.query.filter_by(id=user_id).first()
-    role_staff_id = Role.query.filter_by(name='Staff').first().id
+    role_staff_id = SystemRole.query.filter_by(name='Staff').first().id
     if user:
       form = UpdateUserAccount(obj=user)
-      roleChoices = [(i.id, i.name) for i in Role.query.all()]
+      roleChoices = [(i.id, i.name) for i in SystemRole.query.all()]
       form.role.choices = roleChoices
       form.staffRole.choices = [(i.id, i.name) for i in JobRole.query.all()]
 

@@ -21,6 +21,9 @@
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Perfile</h5>
         </div>
+        {% if not current_user.get_profile().company or not current_user.get_profile().address %}
+          <small class="mb-1"><span class="badge badge-danger">Perfile incompleto</span></small>
+        {% endif %}
         <br>
         <p class="mb-1">Complete os seu perfile e reduza o tempo de reservas selecionando os seus servicos mais usados.</p>
         <small><strong>Clique para abrir</strong></small>
