@@ -1,6 +1,6 @@
 ## jtCleaning - a Flask application 
 
-### [Download the video]() of this application in action. Worth it!
+### [Download the video gif (5 min - 35 Mb)](repo_gifs/vid.gif) of this application in action. Worth it!
 
 Main features:
 + Main website 
@@ -57,4 +57,4 @@ A family member (hence the Portuguese language everywhere) challenged me to crea
 
 Cleaners login to their profile to check on jobs they are assigned to, communicate with the office and clients. 
 
-The admins, on the otherhand, would be able to login to an admin area, where they can manage users, staff, requests, payments and run some reports. On the admin area, staff is assigned to a request and provided with the details of the client and location.
+The admins, on the otherhand, are able to login to an admin area, where they can manage users, staff, requests, payments and run some reports. On the admin area, staff is assigned to a request and provided with the details of the client and location.
