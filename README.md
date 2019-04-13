@@ -35,7 +35,8 @@ Custom worklfow layout, chat on the right with admin (not websockets)
 <img src="repo_gifs/c3.PNG" width=700 />
 
 Admin area
-8 views:
+<img src="repo_gifs/c6.PNG" width=550 />
+8 different views:
 + Dashboard
 + Users list
 + Bookings lists
@@ -44,7 +45,6 @@ Admin area
 + Admins list
 + Recent activity
 + Reporting tool
-<img src="repo_gifs/c6.PNG" width=550 />
 <img src="repo_gifs/c4.PNG" width=550 />
 
 Inside a booking - Admin view
