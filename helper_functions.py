@@ -24,7 +24,6 @@ def create_system_rights():
   user_role_id = SystemRole.query.filter_by(name='User').first().id
   staff_role_id = SystemRole.query.filter_by(name='Staff').first().id
   admin_role_id = SystemRole.query.filter_by(name='Admin').first().id
-  custom_role_id = SystemRole.query.filter_by(name='Custom').first().id
 
   a = SystemRights(
         system_role_id=admin_role_id,
@@ -32,14 +31,6 @@ def create_system_rights():
         description='Admin / developer - no restrictions on the system.')
 
   return None
-
-
-
-
-
-
-
-
 
 
 
@@ -119,3 +110,12 @@ def create_main_users():
   add_staff_member('Manager',2,3)
 
   return None
+
+
+if __name__ == "__main__":
+  drop_all_tables()
+  create_all_tables()
+  create_system_roles()
+  create_job_roles()
+  create_system_rights()
+  create_main_users()

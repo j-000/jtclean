@@ -142,6 +142,7 @@ def registo():
 
       token = generate_confirmation_token(escape(form.email.data))
       url = url_for('confirm_email', token=token, _external=True)
+      print(url)
       html = render_template('email_templates/welcome_email.html', confirm_url=url)
       sendEmail(email_subject='Confirme a sua conta!',
                 recipients=[escape(form.email.data)],
