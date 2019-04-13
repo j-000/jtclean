@@ -36,6 +36,7 @@ Custom worklfow layout, chat on the right with admin (not websockets)
 
 Admin area
 <img src="repo_gifs/c6.PNG" width=550 />
+
 8 different views:
 + Dashboard
 + Users list
